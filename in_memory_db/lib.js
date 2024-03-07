@@ -13,10 +13,10 @@ const saveData = (filepath, data) => {
     fs.writeFileSync(filepath, JSON.stringify(data, null, 2), 'utf8');
 }
 
-const createRecord = (newRecord, filepath) => {
+const createRecord = (filepath, newRecord) => {
     const data = loadData(filepath);
     data.push(newRecord);
-    saveData(data);
+    saveData(filepath, data);
     return true;
 }
 
@@ -24,9 +24,9 @@ const getAllRecords = (filepath) => {
     return loadData(filepath);
 }
 
-const getById = (filepath, id) => {
+const getByEmail = (filepath, email) => {
     const data = loadData(filepath);
-    const index = data.findIndex(record => record[id]=== id);
+    const index = data.findIndex(record => record.email === email);
     return index !== -1 ? data[index] : {} 
 }
 
@@ -35,7 +35,7 @@ const updateRecord = (filepath, id, updatedFields) => {
     const index = data.findIndex(record => record.id === id);
     if (index !== -1) {
         data[index] = { ...data[index], ...updatedFields };
-        saveData(data);
+        saveData(filepath, data);
         return true;
     }
     return false;
@@ -45,11 +45,11 @@ const deleteRecord = (filepath, id) => {
     const data = loadData(filepath);
     const filteredData = data.filter(record => record.id !== id);
     if (filteredData.length !== data.length) {
-        saveData(filteredData);
+        saveData(filepath, filteredData);
         return true;
     }
     return false;
 }
 
-module.exports = {loadData, saveData, createRecord, getAllRecords, getById, updateRecord, deleteRecord};
+module.exports = {loadData, saveData, createRecord, getAllRecords, getByEmail, updateRecord, deleteRecord};
 
