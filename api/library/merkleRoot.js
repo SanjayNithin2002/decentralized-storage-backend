@@ -53,7 +53,7 @@ const compareMerkleTrees = (tree1, tree2) => {
             stack2.push(node2.right);
         }
     }
-
+    
     // If one tree has more nodes than the other, they are not equal
     return stack1.length === 0 && stack2.length === 0;
 }
@@ -63,7 +63,14 @@ const verifyMerkleTree = (calculatedMerkleTree, filepath) => {
     return compareMerkleTrees(calculatedMerkleTree, newTree);
 } 
 
-module.exports = {constructMerkleTree, compareMerkleTrees, verifyMerkleTree};
+const verifyMerkleRoot = (calculatedMerkleTree, filepath) => {
+    const calculatedMerkleRoot = calculatedMerkleTree.getRoot().toString('hex');
+    const newMerkleTree = constructMerkleTree(filepath);
+    const newMerkleRoot = newMerkleTree.getRoot().toString('hex');
+    return calculatedMerkleRoot === newMerkleRoot;
+}
+
+module.exports = {constructMerkleTree, compareMerkleTrees, verifyMerkleTree, verifyMerkleRoot};
 
 
 

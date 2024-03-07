@@ -1,5 +1,5 @@
 {
     "env": {
-        
+        "JWT_KEY": "capstone-project-2024-securing-cloud-file-storage-using-blockchain-yada-yada"
     }
 }

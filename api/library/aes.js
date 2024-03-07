@@ -6,7 +6,7 @@ const deriveKeyFromPassword = (password, salt, iterations) => {
     return crypto.pbkdf2Sync(password, salt, iterations, 32, 'sha512');
 };
 
-const encryptAesGcm = (plainText, secret_key) => {
+const encryptAes = (plainText, secret_key) => {
     try {
         if (typeof plainText === 'object') {
             plainText = JSON.stringify(plainText);
@@ -30,7 +30,7 @@ const encryptAesGcm = (plainText, secret_key) => {
     }
 };
 
-const decryptAesGcm = (cipherText, secret_key) => {
+const decryptAes = (cipherText, secret_key) => {
     try {
         const algorithm = getAlgorithm();
         const inputData = Buffer.from(cipherText, 'hex');
@@ -54,6 +54,5 @@ const decryptAesGcm = (cipherText, secret_key) => {
         return void 0;
     }
 };
-module.exports.encryptAes = encryptAesGcm;
-module.exports.decryptAes = decryptAesGcm;
 
+module.exports = { encryptAes, decryptAes }
