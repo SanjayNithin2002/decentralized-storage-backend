@@ -5,6 +5,9 @@ const morgan = require('morgan');
 const app = express();
 const port = process.env.port || 3000;
 
+const userRoutes = require('./api/routes/Users');
+const fileRoutes = require('./api/routes/Files');
+
 // Middlewares
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -15,7 +18,10 @@ app.get('/', (req, res) => {
     res.status(200).json({
         message: 'will start coding tomorrow'
     });
-})
+});
+
+app.use('/users', userRoutes);
+app.use('/files', fileRoutes);
 
 // Error Handlers
 app.use((req, res, next) => {
