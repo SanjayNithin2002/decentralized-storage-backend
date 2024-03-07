@@ -17,7 +17,6 @@ router.get('/:id', (req, res) => {
     });
 });
 
-
 router.post('/', (req, res) => {
     const fileExists = createRecord(filepath, req.body);
     if(loginFlag){
@@ -35,9 +34,9 @@ router.post('/', (req, res) => {
 router.patch('/:id', (req, res) => {
     const updateOps = {};
     for (const ops of req.body) {
-        updateOps[ops.propName] = ops.value;
+        updateOps[ops.key] = ops.value;
     }
-    const updateFlag = updateRecord(filepath, updateOps);
+    const updateFlag = updateRecord(filepath, req.params.id, updateOps);
     if(updateFlag){
         res.status(201).json({
             message: 'Updation Successful'

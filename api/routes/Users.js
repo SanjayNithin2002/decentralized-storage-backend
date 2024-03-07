@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { loadData, saveData, createRecord, getAllRecords, getByEmail, updateRecord, deleteRecord } = require('../../in_memory_db/lib');
+const { loadData, saveData, createRecord, getAllRecords, getByEmail, getById, updateRecord, deleteRecord } = require('../../in_memory_db/lib');
 const checkAuth = require('../middlewares/checkAuth');
 const generateToken = require('../library/generateToken');
+const { randomUUID } = require('crypto');
 
 const filepath = './in_memory_db/Users.json';
 
@@ -25,6 +26,7 @@ router.post('/login', (req, res) => {
     if (req.body.email === user.email && req.body.password === user.password) {
         res.status(201).json({
             message: 'Auth Successful',
+            user: user,
             token: generateToken({
                 id: user.id,
                 email: user.email
@@ -39,13 +41,16 @@ router.post('/login', (req, res) => {
 });
 
 router.post('/signup', (req, res) => {
-    const loginFlag = createRecord(filepath, req.body);
+    const user = req.body;
+    user.id = randomUUID();
+    const loginFlag = createRecord(filepath, user);
     if (loginFlag) {
         res.status(201).json({
             message: 'Auth Successful',
+            user: user,
             token: generateToken({
-                id: req.body.id,
-                email: req.body.email
+                id: user.id,
+                email: user.email
             })
         })
     }
@@ -59,9 +64,9 @@ router.post('/signup', (req, res) => {
 router.patch('/:id', checkAuth, (req, res) => {
     const updateOps = {};
     for (const ops of req.body) {
-        updateOps[ops.propName] = ops.value;
+        updateOps[ops.key] = ops.value;
     }
-    const updateFlag = updateRecord(filepath, updateOps);
+    const updateFlag = updateRecord(filepath, req.params.id, updateOps);
     if (updateFlag) {
         res.status(201).json({
             message: 'Updation Successful'
