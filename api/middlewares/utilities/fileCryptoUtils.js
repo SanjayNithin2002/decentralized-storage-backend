@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { encryptAes, decryptAes } = require('./aes');
+const { encryptAes, decryptAes } = require('../algorithms/aes');
 
 const encryptFile = (filepath, key) => {
     fs.readFile(filepath, (err, filedata) => {

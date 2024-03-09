@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 // Import Middlewares
-const uploadHandler = require('../middlewares/handlers/uploadHandler');
+const uploadHandler = require('../middlewares/utilities/uploadHandler');
 const {loadData, saveData, createRecord, getAllRecords, getById, updateRecord, deleteRecord} = require('../../in_memory_db/lib');
 
 const filepath = './in_memory_db/Files.json';
