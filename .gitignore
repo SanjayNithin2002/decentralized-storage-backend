@@ -130,3 +130,4 @@ dist
 .pnp.*
 
 connection-org1.json
+firebase-config.json
