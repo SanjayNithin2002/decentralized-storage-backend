@@ -13,9 +13,13 @@
                     "README.md",
                     "node_modules/",
                     "package-lock.json",
-                    "package.json"
+                    "package.json",
+                    ".gitignore",
+                    ".gitignore"
                 ],
-                "peek": []
+                "peek": [
+                    "package.json"
+                ]
             },
             {
                 "name": "Strict",
@@ -37,8 +41,7 @@
         "LICENSE": true,
         "README.md": true,
         "node_modules/": true,
-        "package-lock.json": true,
-        "package.json": true
+        "package-lock.json": true
     },
     "hidefiles.selectedProfile": "Default"
 }
