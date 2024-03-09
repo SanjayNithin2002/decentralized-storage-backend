@@ -22,7 +22,7 @@ const encryptAes = (plainText, secret_key) => {
         const encryptedData = Buffer.concat([cipher.update(plainText, 'utf8'), cipher.final()]);
         const authTag = cipher.getAuthTag();
         const output = Buffer.concat([salt, iv, authTag, Buffer.from(iterations.toString()), encryptedData]).toString('hex');
-        return getEncryptedPrefix() + output;
+        return output;
     } catch (error) {
         console.error('Encryption failed!');
         console.error(error);
