@@ -1,9 +1,12 @@
+// Import packages
 const express = require('express');
 const router = express.Router();
-const { loadData, saveData, createRecord, getAllRecords, getByEmail, getById, updateRecord, deleteRecord } = require('../../in_memory_db/lib');
-const checkAuth = require('../middlewares/checkAuth');
-const generateToken = require('../library/generateToken');
 const { randomUUID } = require('crypto');
+
+// Import Middlewares
+const { loadData, saveData, createRecord, getAllRecords, getByEmail, getById, updateRecord, deleteRecord } = require('../../in_memory_db/lib');
+const checkAuth = require('../middlewares/tokens/checkAuth');
+const generateToken = require('../middlewares/tokens/generateToken');
 
 const filepath = './in_memory_db/Users.json';
 

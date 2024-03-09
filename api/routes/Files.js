@@ -1,6 +1,11 @@
+// Import packages
 const express = require('express');
 const router = express.Router();
+
+// Import Middlewares
+const uploadHandler = require('../middlewares/handlers/uploadHandler');
 const {loadData, saveData, createRecord, getAllRecords, getById, updateRecord, deleteRecord} = require('../../in_memory_db/lib');
+
 const filepath = './in_memory_db/Files.json';
 
 router.get('/', (req, res) => {
@@ -17,9 +22,15 @@ router.get('/:id', (req, res) => {
     });
 });
 
-router.post('/', (req, res) => {
-    const fileExists = createRecord(filepath, req.body);
-    if(loginFlag){
+router.post('/', uploadHandler.single('file'), (req, res) => {
+    const fileMetaData = {
+        title: req.body.title,
+        uploadedAt: new Date().toLocaleString(),
+        filepath: req.file.path,
+    }
+    console.log(req.file.path);
+    const fileExists = createRecord(filepath, fileMetaData);
+    if(fileExists){
         res.status(201).json({
             message: 'File Creation Successful'
         })
@@ -29,6 +40,7 @@ router.post('/', (req, res) => {
             message: 'File Creation Unsuccessful'
         })
     }
+    
 });
 
 router.patch('/:id', (req, res) => {
