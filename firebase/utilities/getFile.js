@@ -11,9 +11,7 @@ const getFile = (filepath) => {
         };
         file.getSignedUrl(options)
             .then(url => {
-                const [folderName, fileName] = filepath.split('/');
-                const downloadFilePath = `downloads/${fileName}`;
-                fetchPDF(url, downloadFilePath)
+                fetchPDF(url, filepath)
                     .then(results => resolve(results))
                     .catch(err => reject(err));
             }
