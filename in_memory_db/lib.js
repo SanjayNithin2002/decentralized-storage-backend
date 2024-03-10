@@ -30,7 +30,7 @@ const getByEmail = (filepath, email) => {
     return index !== -1 ? data[index] : {} 
 }
 
-const getById = (filepath, id) => {
+const getRecord = (filepath, id) => {
     const data = loadData(filepath);
     const index = data.findIndex(record => record.id === id);
     return index !== -1 ? data[index] : {} 
@@ -57,5 +57,5 @@ const deleteRecord = (filepath, id) => {
     return false;
 }
 
-module.exports = {loadData, saveData, createRecord, getAllRecords, getByEmail, getById, updateRecord, deleteRecord};
+module.exports = {loadData, saveData, createRecord, getAllRecords, getByEmail, getRecord, updateRecord, deleteRecord};
 

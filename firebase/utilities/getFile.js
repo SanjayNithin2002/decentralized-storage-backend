@@ -1,6 +1,7 @@
 const fetchPDF = require('../../api/middlewares/utilities/fetchPDF');
+const bucket = require('../bucket');
 
-const getFile = (bucket, filepath) => {
+const getFile = (filepath) => {
     return new Promise((resolve, reject) => {
         const file = bucket.file(filepath);
         var options = {
