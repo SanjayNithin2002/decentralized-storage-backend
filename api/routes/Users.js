@@ -8,6 +8,7 @@ router.get('/', checkAuth, userControllers.getAll);
 router.get('/:id', checkAuth, userControllers.getById);
 router.post('/login', userControllers.login);
 router.post('/signup', userControllers.signup);
+router.patch('/approve/:id', checkAuth, userControllers.approveById);
 router.delete('/:id', checkAuth, userControllers.deleteById);
 
 module.exports = router;

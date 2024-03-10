@@ -49,7 +49,8 @@ const signup = (req, res) => {
         email: req.body.email,
         password: sha256(req.body.password),
         department: req.body.department,
-        role: req.body.role
+        role: req.body.role, 
+        status: 'Pending'
     }
     const loginFlag = createRecord(filepath, user);
     if (loginFlag) {
@@ -69,6 +70,23 @@ const signup = (req, res) => {
     }
 };
 
+const approveById = (req, res) => {
+    const updateOps = {
+        status: "Approved"
+    };
+    const updateFlag = updateRecord(filepath, req.params.id, updateOps);
+    if(updateFlag){
+        res.status(201).json({
+            message: 'Updation Successful'
+        })
+    }
+    else{
+        res.status(409).json({
+            message: 'Updation Unsuccesful'
+        })
+    }
+}
+
 const deleteById = (req, res) => {
     const deleteFlag = deleteRecord(filepath, req.params.id);
     if (deleteFlag) {
@@ -83,5 +101,5 @@ const deleteById = (req, res) => {
     }
 };
 
-module.exports = { getAll, getById, login, signup, deleteById };
+module.exports = { getAll, getById, login, signup, approveById, deleteById };
 
