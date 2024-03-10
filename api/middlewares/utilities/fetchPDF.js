@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 const fetchPDF = (url, filepath) => {
-    return new Promise((reject, resolve) => {
+    return new Promise((resolve, reject) => {
         fetch(url)
             .then(response => {
                 if (!response.ok) {

@@ -27,3 +27,5 @@ const getFile = (filepath) => {
             );
     })
 }
+
+module.exports = getFile;

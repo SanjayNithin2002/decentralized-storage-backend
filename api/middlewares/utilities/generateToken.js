@@ -5,7 +5,7 @@ const generateToken = (jsonData) => {
         jsonData,
         process.env.JWT_KEY || 'sample-key',
         {
-            expiresIn: "1h"
+            expiresIn: "24h"
         });
     return token;
 }

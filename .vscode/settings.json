@@ -15,7 +15,9 @@
                     "package-lock.json",
                     "package.json",
                     ".gitignore",
-                    ".gitignore"
+                    ".gitignore",
+                    "node_modules/",
+                    "node_modules/"
                 ],
                 "peek": [
                     "package.json"
