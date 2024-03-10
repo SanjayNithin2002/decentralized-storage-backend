@@ -7,6 +7,7 @@ const deleteFile = require('../../firebase/utilities/deleteFile');
 const uploadFile = require('../../firebase/utilities/uploadFile');
 const getFile = require('../../firebase/utilities/getFile');
 const deleteHandler = require('../middlewares/utilities/deleteHandler');
+const { encryptFile, decryptFile } = require('../middlewares/utilities/fileCryptoUtils');
 
 const filepath = './in_memory_db/Files.json';
 
@@ -21,11 +22,18 @@ const getById = (req, res) => {
     const file = getRecord(filepath, req.params.id);
     if (file?.filepath) {
         getFile(file.filepath)
-            .then(results => {
-                console.log(results);
-                res.status(200).json({
-                    file: results
-                });
+            .then(firebaseResults => {
+                decryptFile(file.filepath, req.body.key)
+                    .then(decryptResults => {
+                        res.download(file.filepath, (err) => {
+                            deleteHandler(file.filepath);
+                        });
+                    })
+                    .catch(err => {
+                        res.status(err.status || 500).json({
+                            error: err
+                        })
+                    })
             })
             .catch(err => {
                 res.status(err.status || 404).json({
@@ -41,35 +49,43 @@ const getById = (req, res) => {
 };
 
 const postFile = (req, res) => {
-    uploadFile(req.file.path)
+    encryptFile(req.file.path, req.body.key)
         .then(results => {
-            const fileMetaData = {
-                id: randomUUID(),
-                title: req.body.title,
-                uploadedAt: new Date().toLocaleString(),
-                filepath: req.file.path,
-                mimetype: req.file.mimetype,
-                originalName: req.file.originalname,
-                size: convertBytes(req.file.size)
-            }
-            const fileExists = createRecord(filepath, fileMetaData);
-            if (fileExists) {
-                deleteHandler(req.file.path);
-                res.status(201).json({
-                    message: 'File Upload Successful'
+            uploadFile(req.file.path)
+                .then(results => {
+                    const fileMetaData = {
+                        id: randomUUID(),
+                        title: req.body.title,
+                        uploadedAt: new Date().toLocaleString(),
+                        filepath: req.file.path,
+                        mimetype: req.file.mimetype,
+                        originalName: req.file.originalname,
+                        size: convertBytes(req.file.size)
+                    }
+                    const fileExists = createRecord(filepath, fileMetaData);
+                    if (fileExists) {
+                        deleteHandler(req.file.path);
+                        res.status(201).json({
+                            message: 'File Upload Successful'
+                        })
+                    }
+                    else {
+                        res.status(409).json({
+                            message: 'File Creation Unsuccessful'
+                        })
+                    }
                 })
-            }
-            else {
-                res.status(401).json({
-                    message: 'File Creation Unsuccessful'
+                .catch(err => {
+                    res.status(err.status || 500).json({
+                        error: err
+                    })
                 })
-            }
         })
         .catch(err => {
             res.status(err.status || 500).json({
                 error: err
             })
-        })
+        });
 };
 
 const patchById = (req, res) => {
