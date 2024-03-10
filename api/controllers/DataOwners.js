@@ -4,7 +4,7 @@ const { randomUUID } = require('crypto');
 // Import Middlewares
 const { loadData, saveData, createRecord, getAllRecords, getByEmail, getRecord, updateRecord, deleteRecord } = require('../../in_memory_db/lib');
 const generateToken = require('../middlewares/utilities/generateToken');
-
+const generateSecretKey = require('../middlewares/utilities/generateSecretKey');
 const filepath = './in_memory_db/Data-Owners.json';
 
 const getAll = (req, res) => {
@@ -20,6 +20,12 @@ const getById = (req, res) => {
         dataOwner: dataOwner
     });
 };
+
+const getSecretKey = (req, res) => {
+    res.status(200).json({
+        secret_key: generateSecretKey()
+    })
+}
 
 const login = (req, res) => {
     const dataOwner = getByEmail(filepath, req.body.email);
@@ -75,4 +81,4 @@ const deleteById = (req, res) => {
     }
 };
 
-module.exports = {getAll, getById, login, signup, deleteById}
+module.exports = {getAll, getById, getSecretKey, login, signup, deleteById}
