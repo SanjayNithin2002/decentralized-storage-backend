@@ -4,34 +4,32 @@ const { randomUUID } = require('crypto');
 // Import Middlewares
 const { loadData, saveData, createRecord, getAllRecords, getByEmail, getRecord, updateRecord, deleteRecord } = require('../../in_memory_db/lib');
 const generateToken = require('../middlewares/utilities/generateToken');
-const sha256 = require('../middlewares/algorithms/sha256');
-const verifyPassword = require('../middlewares/utilities/verifyPassword');
 
-const filepath = './in_memory_db/Users.json';
+const filepath = './in_memory_db/Data-Owners.json';
 
 const getAll = (req, res) => {
-    const users = getAllRecords(filepath);
+    const dataOwners = getAllRecords(filepath);
     res.status(200).json({
-        users: users
+        dataOwners: dataOwners
     });
 };
 
 const getById = (req, res) => {
-    const user = getRecord(filepath, req.params.id);
+    const dataOwner = getById(filepath, req.params.id);
     res.status(200).json({
-        user: user
+        dataOwner: dataOwner
     });
 };
 
 const login = (req, res) => {
-    const user = getByEmail(filepath, req.body.email);
-    if (req.body.email === user.email && verifyPassword(user.password, req.body.password)) {
+    const dataOwner = getByEmail(filepath, req.body.email);
+    if (req.body.email === dataOwner.email && req.body.password === dataOwner.password) {
         res.status(201).json({
             message: 'Auth Successful',
-            user: user,
+            dataOwner: dataOwner,
             token: generateToken({
-                id: user.id,
-                email: user.email
+                id: dataOwner.id,
+                email: dataOwner.email
             })
         });
     }
@@ -43,31 +41,25 @@ const login = (req, res) => {
 };
 
 const signup = (req, res) => {
-    const user = {
-        id: randomUUID(),
-        name: req.body.name,
-        email: req.body.email,
-        password: sha256(req.body.password),
-        department: req.body.department,
-        role: req.body.role
-    }
-    const loginFlag = createRecord(filepath, user);
+    const dataOwner = req.body;
+    dataOwner.id = randomUUID();
+    const loginFlag = createRecord(filepath, dataOwner);
     if (loginFlag) {
         res.status(201).json({
-            message: 'User Creation Successful',
-            user: user,
+            message: 'dataOwner Creation Successful',
+            dataOwner: dataOwner,
             token: generateToken({
-                id: user.id,
-                email: user.email
+                id: dataOwner.id,
+                email: dataOwner.email
             })
         })
     }
     else {
         res.status(401).json({
-            message: 'User Creation Unsuccessful'
+            message: 'dataOwner Creation Unsuccessful'
         })
     }
-};
+}
 
 const deleteById = (req, res) => {
     const deleteFlag = deleteRecord(filepath, req.params.id);
@@ -83,5 +75,4 @@ const deleteById = (req, res) => {
     }
 };
 
-module.exports = { getAll, getById, login, signup, deleteById };
-
+module.exports = {getAll, getById, login, signup, deleteById}

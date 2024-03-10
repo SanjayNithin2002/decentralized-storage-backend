@@ -1,4 +1,6 @@
-const deleteFile = (bucket, filepath) => {
+const bucket = require('../bucket');
+
+const deleteFile = (filepath) => {
     return new Promise((resolve, reject) => {
         var remoteFilePath = bucket.file(filepath);
         remoteFilePath.delete()

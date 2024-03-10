@@ -1,5 +1,5 @@
 const admin = require("firebase-admin");
-
+const uploadFile = require('./utilities/uploadFile');
 const serviceAccount = {
     type: process.env.type,
     project_id: process.env.project_id,

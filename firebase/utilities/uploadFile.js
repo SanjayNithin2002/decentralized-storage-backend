@@ -1,4 +1,6 @@
-const uploadFile = (bucket, filepath) => {
+const bucket = require('../bucket');
+
+const uploadFile = (filepath) => {
     return new Promise((resolve, reject) => {
         const [fileExt, ...fileNameArr] = filepath.split('.').reverse();
         bucket.upload(filepath, {

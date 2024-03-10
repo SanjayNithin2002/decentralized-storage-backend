@@ -7,6 +7,7 @@ const port = process.env.port || 3000;
 
 const userRoutes = require('./api/routes/Users');
 const fileRoutes = require('./api/routes/Files');
+const dataOwnerRoutes = require('./api/routes/DataOwners');
 
 // Middlewares
 app.use(morgan('dev'));
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 
 app.use('/users', userRoutes);
 app.use('/files', fileRoutes);
+app.use('/dataowners', dataOwnerRoutes);
 
 // Error Handlers
 app.use((req, res, next) => {
