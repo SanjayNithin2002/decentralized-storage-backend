@@ -13,7 +13,7 @@ const fetchAPI = (apiContent) => {
         const url = JSON.stringify(params) === '{}' ? `${process.env.KALEIDO_URL}/${endpoint}` : `${process.env.KALEIDO_URL}/${endpoint}/?${queryParams}`;
 
         const options = {
-            method: method, 
+            method: method,
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": process.env.KALEIDO_AUTH_HEADER,
@@ -21,22 +21,28 @@ const fetchAPI = (apiContent) => {
             }
         }
 
-        if(JSON.stringify(body) !== '{}'){
+        if (JSON.stringify(body) !== '{}') {
             options.body = JSON.stringify(body);
         }
         console.log(url, options);
 
         fetch(url, options)
-        .then(response => {
-            if(!response.ok){
-                const error = new Error(response.statusText);
-                error.status = response.status;
-                reject(error);
-            }
-            return response.json();
-        })
-        .then(results => resolve(results))
-        .catch(err => reject(err));
+            .then(response => {
+                if (!response.ok) {
+                    const error = new Error(response.statusText);
+                    error.status = response.status;
+                    reject(error);
+                }
+                return response.json();
+            })
+            .then(results => {
+                console.log(results);
+                resolve(results)
+            })
+            .catch(err => {
+                console.log(err);
+                reject(err)
+            });
     })
 }
 

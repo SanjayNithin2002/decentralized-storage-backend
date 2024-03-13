@@ -2,104 +2,221 @@
 const { randomUUID } = require('crypto');
 
 // Import Middlewares
-const { loadData, saveData, createRecord, getAllRecords, getByEmail, getRecord, updateRecord, deleteRecord } = require('../../in_memory_db/lib');
+const fetchAPI = require('../../kaleido/fetchAPI');
 const generateToken = require('../middlewares/utilities/generateToken');
 const sha256 = require('../middlewares/algorithms/sha256');
 const verifyPassword = require('../middlewares/utilities/verifyPassword');
 
-const filepath = './in_memory_db/Users.json';
-
 const getAll = (req, res) => {
-    const users = getAllRecords(filepath);
-    res.status(200).json({
-        users: users
-    });
+    const apiContent = {
+        method: 'GET',
+        instance: 'USER',
+        func: 'getAllUsers'
+    }
+    fetchAPI(apiContent)
+        .then(users => {
+            res.status(200).json({
+                users: users.output
+            });
+        })
+        .catch(err => {
+            console.log(err);
+            const statusCode = err.status || 500;
+            const errorMessage = err.stack || 'Internal Server Error';
+            res.status(statusCode).json({
+                error: errorMessage
+            })
+        });
 };
 
 const getById = (req, res) => {
-    const user = getRecord(filepath, req.params.id);
-    res.status(200).json({
-        user: user
-    });
+    const apiContent = {
+        method: 'GET',
+        instance: 'USER',
+        func: 'getUser',
+        params: {
+            _id: req.params.id
+        }
+    }
+    fetchAPI(apiContent)
+        .then(users => {
+            res.status(200).json({
+                user: users.output
+            });
+        })
+        .catch(err => {
+            console.log(err);
+            const statusCode = err.status || 500;
+            const errorMessage = err.stack || 'Internal Server Error';
+            res.status(statusCode).json({
+                error: errorMessage
+            })
+        });
+};
+
+const getByDepartment = (req, res) => {
+    const apiContent = {
+        method: 'GET',
+        instance: 'USER',
+        func: 'getUsersByDepartment',
+        params: {
+            _department: req.params.dept
+        }
+    }
+    fetchAPI(apiContent)
+        .then(users => {
+            res.status(200).json({
+                user: users.output
+            });
+        })
+        .catch(err => {
+            console.log(err);
+            const statusCode = err.status || 500;
+            const errorMessage = err.stack || 'Internal Server Error';
+            res.status(statusCode).json({
+                error: errorMessage
+            })
+        });
 };
 
 const login = (req, res) => {
-    const user = getByEmail(filepath, req.body.email);
-    if (req.body.email === user.email && verifyPassword(user.password, req.body.password)) {
-        res.status(201).json({
-            message: 'Auth Successful',
-            user: user,
-            token: generateToken({
-                id: user.id,
-                email: user.email
+    const apiContent = {
+        method: 'GET',
+        instance: 'USER',
+        func: 'getUserByEmail',
+        params: {
+            _email: req.body.email
+        }
+    }
+    fetchAPI(apiContent)
+        .then(results => {
+            const user = results.output;
+            if (req.body.email === user.email && verifyPassword(user.password, req.body.password)) {
+                res.status(201).json({
+                    message: 'Auth Successful',
+                    user: user,
+                    token: generateToken({
+                        id: user.id,
+                        email: user.email
+                    })
+                });
+            }
+            else {
+                res.status(401).json({
+                    message: 'Auth Failed'
+                });
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            const statusCode = err.status || 500;
+            const errorMessage = err.stack || 'Internal Server Error';
+            res.status(statusCode).json({
+                error: errorMessage
             })
         });
-    }
-    else {
-        res.status(401).json({
-            message: 'Auth Failed'
-        });
-    }
 };
 
 const signup = (req, res) => {
-    const user = {
-        id: randomUUID(),
-        name: req.body.name,
-        email: req.body.email,
-        password: sha256(req.body.password),
-        department: req.body.department,
-        role: req.body.role, 
-        status: 'Pending'
+    const apiContent = {
+        method: 'POST',
+        instance: 'USER',
+        func: 'createUser',
+        body: {
+            _id: randomUUID(),
+            _name: req.body.name,
+            _email: req.body.email,
+            _password: sha256(req.body.password),
+            _department: req.body.department,
+            _role: req.body.role
+        }
     }
-    const loginFlag = createRecord(filepath, user);
-    if (loginFlag) {
-        res.status(201).json({
-            message: 'User Creation Successful',
-            user: user,
-            token: generateToken({
-                id: user.id,
-                email: user.email
+    fetchAPI(apiContent)
+        .then(results => {
+            if (results.sent) {
+                res.status(201).json({
+                    message: 'User Successfuly Created'
+                });
+            }
+            else {
+                res.status(401).json({
+                    error: 'User signup failed. Try again.'
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            const statusCode = err.status || 500;
+            const errorMessage = err.stack || 'Internal Server Error';
+            res.status(statusCode).json({
+                error: errorMessage
             })
-        })
-    }
-    else {
-        res.status(401).json({
-            message: 'User Creation Unsuccessful'
-        })
-    }
+        });
 };
 
 const approveById = (req, res) => {
-    const updateOps = {
-        status: "Approved"
-    };
-    const updateFlag = updateRecord(filepath, req.params.id, updateOps);
-    if(updateFlag){
-        res.status(201).json({
-            message: 'Updation Successful'
-        })
+    const apiContent = {
+        method: 'POST',
+        instance: 'USER',
+        func: 'approveUser',
+        body: {
+            _id: req.params.id
+        }
     }
-    else{
-        res.status(409).json({
-            message: 'Updation Unsuccesful'
+    fetchAPI(apiContent)
+        .then(results => {
+            if (results.sent) {
+                res.status(200).json({
+                    message: 'User Approved Successfuly'
+                });
+            }
+            else {
+                res.status(401).json({
+                    error: 'User approval failed.'
+                })
+            }
         })
-    }
+        .catch(err => {
+            console.log(err);
+            const statusCode = err.status || 500;
+            const errorMessage = err.stack || 'Internal Server Error';
+            res.status(statusCode).json({
+                error: errorMessage
+            })
+        });
 }
 
 const deleteById = (req, res) => {
-    const deleteFlag = deleteRecord(filepath, req.params.id);
-    if (deleteFlag) {
-        res.status(201).json({
-            message: 'Deletion Successful'
-        })
+    const apiContent = {
+        method: 'POST',
+        instance: 'USER',
+        func: 'deleteUser',
+        body: {
+            _id: req.params.id
+        }
     }
-    else {
-        res.status(409).json({
-            message: 'Deletion Unsuccesful'
+    fetchAPI(apiContent)
+        .then(results => {
+            if (results.sent) {
+                res.status(200).json({
+                    message: 'User Deleted Successfuly'
+                });
+            }
+            else {
+                res.status(401).json({
+                    error: 'User deletion failed.'
+                })
+            }
         })
-    }
+        .catch(err => {
+            console.log(err);
+            const statusCode = err.status || 500;
+            const errorMessage = err.stack || 'Internal Server Error';
+            res.status(statusCode).json({
+                error: errorMessage
+            })
+        });
 };
 
-module.exports = { getAll, getById, login, signup, approveById, deleteById };
+module.exports = { getAll, getById, getByDepartment, login, signup, approveById, deleteById };
 
