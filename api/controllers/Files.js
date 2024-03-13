@@ -8,6 +8,8 @@ const uploadFile = require('../../firebase/utilities/uploadFile');
 const getFile = require('../../firebase/utilities/getFile');
 const deleteHandler = require('../middlewares/utilities/deleteHandler');
 const { encryptFile, decryptFile } = require('../middlewares/utilities/fileCryptoUtils');
+const deriveKeyBasedOnRole = require('../middlewares/utilities/deriveKeyBasedOnRole');
+const { constructMerkleTree, verifyMerkleRoot } = require('../middlewares/algorithms/merkleRoot');
 
 const filepath = './in_memory_db/Files.json';
 
@@ -49,7 +51,8 @@ const getById = (req, res) => {
 };
 
 const postFile = (req, res) => {
-    encryptFile(req.file.path, req.body.key)
+    const derivedKey = deriveKeyBasedOnRole(req.body.master_key, req.body.role);
+    encryptFile(req.file.path, derivedKey)
         .then(results => {
             uploadFile(req.file.path)
                 .then(results => {
@@ -60,7 +63,8 @@ const postFile = (req, res) => {
                         filepath: req.file.path,
                         mimetype: req.file.mimetype,
                         originalName: req.file.originalname,
-                        size: convertBytes(req.file.size)
+                        size: convertBytes(req.file.size),
+                        merkleTree: constructMerkleTree(req.file.path)
                     }
                     const fileExists = createRecord(filepath, fileMetaData);
                     if (fileExists) {
