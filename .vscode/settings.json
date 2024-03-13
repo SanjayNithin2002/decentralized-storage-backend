@@ -11,13 +11,10 @@
                     ".gitignore",
                     "LICENSE",
                     "README.md",
-                    "node_modules/",
                     "package-lock.json",
                     "package.json",
                     ".gitignore",
-                    ".gitignore",
-                    "node_modules/",
-                    "node_modules/"
+                    ".gitignore"
                 ],
                 "peek": [
                     "package.json"
@@ -42,7 +39,6 @@
         ".gitignore": true,
         "LICENSE": true,
         "README.md": true,
-        "node_modules/": true,
         "package-lock.json": true
     },
     "hidefiles.selectedProfile": "Default"

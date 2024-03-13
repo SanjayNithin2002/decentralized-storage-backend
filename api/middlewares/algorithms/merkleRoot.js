@@ -18,7 +18,7 @@ const constructMerkleTree = (filepath) => {
     const fileData = readFile(filepath);
     const leaves = splitFileIntoChunks(fileData);
     const tree = new MerkleTree(leaves, sha256);
-    return tree;
+    return tree.getRoot().toString('hex');
 }
 
 const compareMerkleTrees = (tree1, tree2) => {
@@ -63,14 +63,13 @@ const verifyMerkleTree = (calculatedMerkleTree, filepath) => {
     return compareMerkleTrees(calculatedMerkleTree, newTree);
 } 
 
-const verifyMerkleRoot = (calculatedMerkleTree, filepath) => {
-    const calculatedMerkleRoot = calculatedMerkleTree.getRoot().toString('hex');
+const verifyMerkleRoot = (calculatedMerkleRoot, filepath) => {
     const newMerkleTree = constructMerkleTree(filepath);
     const newMerkleRoot = newMerkleTree.getRoot().toString('hex');
     return calculatedMerkleRoot === newMerkleRoot;
 }
 
-module.exports = {constructMerkleTree, compareMerkleTrees, verifyMerkleTree, verifyMerkleRoot};
+module.exports = {constructMerkleTree, verifyMerkleRoot};
 
 
 
