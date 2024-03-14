@@ -86,6 +86,59 @@ const getById = (req, res) => {
         });
 };
 
+const verifyIntegrity = (req, res) => {
+    const apiContent = {
+        method: 'GET',
+        instance: 'FILE',
+        func: 'getFileById',
+        params: {
+            _id: req.params.id
+        }
+    }
+    fetchAPI(apiContent)
+        .then(files => {
+            const file = files.output;
+            if (file?.filepath) {
+                getFile(file.filepath)
+                    .then(firebaseResults => {
+                        decryptFile(file.filepath, req.body.key)
+                            .then(decryptResults => {
+                                const calculatedMerkleRoot = constructMerkleTree(file.filepath);
+                                const storedMerkleRoot = file.merkleRoot;
+                                res.status(200).json({
+                                    calculatedMerkleRoot: calculatedMerkleRoot,
+                                    storedMerkleRoot: storedMerkleRoot,
+                                    integrityPreserved: (storedMerkleRoot === calculatedMerkleRoot)
+                                });
+                            })
+                            .catch(err => {
+                                res.status(err.status || 500).json({
+                                    error: err
+                                })
+                            })
+                    })
+                    .catch(err => {
+                        res.status(err.status || 404).json({
+                            error: err || 'File Not Found'
+                        });
+                    });
+            }
+            else {
+                res.status(404).json({
+                    error: 'File Not Found'
+                });
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            const statusCode = err.status || 500;
+            const errorMessage = err.stack || 'Internal Server Error';
+            res.status(statusCode).json({
+                error: errorMessage
+            })
+        });
+};
+
 const postFile = (req, res) => {
     encryptFile(req.file.path, req.body.key)
         .then(results => {
@@ -213,4 +266,4 @@ const deleteById = (req, res) => {
         });
 };
 
-module.exports = { getFilesByDepartment, getById, postFile, deleteById };
+module.exports = { getFilesByDepartment, getById, verifyIntegrity, postFile, deleteById };
