@@ -16,7 +16,7 @@
         "KALEIDO_URL": "https://u0klfm5fst-u0csnd4xeh-connect.us0-aws.kaleido.io/",
         "KALEIDO_ADDRESS": "0xfcCb41f86Eb9c7FD8471bc343aC0063Cc3C3cE5A",
         "KALEIDO_AUTH_HEADER": "Basic dTBmdjFmdmJzYjpmaWdpVENvY3F2Y2J5QUlnTHNURm5pZGhIR1JJYUppOXJlSWc0T3hNTVU4",
-        "FILE_ENDPOINT": "instances/0x170354886b957d80ef5ccb77226cce71ac0550cf",
+        "FILE_ENDPOINT": "instances/0xdb7c4e6b189e4523ab176b0446a857afa2848159",
         "USER_ENDPOINT": "instances/0xfb4d34021188807a702b86b6f8aba0bc35b0733d",
         "DATA_OWNER_ENDPOINT": "instances/0xf5dda22a8cbc5aa5a186c587a72ad251d1bae66b"
     }

@@ -120,7 +120,7 @@ const signup = (req, res) => {
                 });
             }
             else {
-                res.status(401).json({
+                res.status(400).json({
                     error: 'Data Owner signup failed. Try again.'
                 })
             }

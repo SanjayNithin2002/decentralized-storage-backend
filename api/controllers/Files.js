@@ -1,7 +1,7 @@
 // Import packages
 const { randomUUID } = require('crypto');
 // Import Middlewares
-const { loadData, saveData, createRecord, getAllRecords, getRecord, updateRecord, deleteRecord } = require('../../in_memory_db/lib');
+const fetchAPI = require('../../kaleido/fetchAPI');
 const convertBytes = require('../middlewares/utilities/convertBytes');
 const deleteFile = require('../../firebase/utilities/deleteFile');
 const uploadFile = require('../../firebase/utilities/uploadFile');
@@ -11,73 +11,125 @@ const { encryptFile, decryptFile } = require('../middlewares/utilities/fileCrypt
 const deriveKeyBasedOnRole = require('../middlewares/utilities/deriveKeyBasedOnRole');
 const { constructMerkleTree, verifyMerkleRoot } = require('../middlewares/algorithms/merkleRoot');
 
-const filepath = './in_memory_db/Files.json';
 
-const getAll = (req, res) => {
-    const files = getAllRecords(filepath);
-    res.status(200).json({
-        files: files
-    });
+const getFilesByDepartment = (req, res) => {
+    const apiContent = {
+        method: 'GET',
+        instance: 'FILE',
+        func: 'getFilesByDepartment',
+        params: {
+            _department: req.params.dept
+        }
+    }
+    fetchAPI(apiContent)
+        .then(files => {
+            res.status(200).json({
+                files: files.output
+            });
+        })
+        .catch(err => {
+            console.log(err);
+            const statusCode = err.status || 500;
+            const errorMessage = err.stack || 'Internal Server Error';
+            res.status(statusCode).json({
+                error: errorMessage
+            })
+        });
 };
 
 const getById = (req, res) => {
-    const file = getRecord(filepath, req.params.id);
-    if (file?.filepath) {
-        getFile(file.filepath)
-            .then(firebaseResults => {
-                decryptFile(file.filepath, req.body.key)
-                    .then(decryptResults => {
-                        res.download(file.filepath, (err) => {
-                            deleteHandler(file.filepath);
-                        });
+    const apiContent = {
+        method: 'GET',
+        instance: 'FILE',
+        func: 'getFileById',
+        params: {
+            _id: req.params.id
+        }
+    }
+    fetchAPI(apiContent)
+        .then(files => {
+            const file = files.output;
+            if (file?.filepath) {
+                getFile(file.filepath)
+                    .then(firebaseResults => {
+                        decryptFile(file.filepath, req.body.key)
+                            .then(decryptResults => {
+                                res.download(file.filepath, (err) => {
+                                    deleteHandler(file.filepath);
+                                });
+                            })
+                            .catch(err => {
+                                res.status(err.status || 500).json({
+                                    error: err
+                                })
+                            })
                     })
                     .catch(err => {
-                        res.status(err.status || 500).json({
-                            error: err
-                        })
-                    })
-            })
-            .catch(err => {
-                res.status(err.status || 404).json({
-                    error: err || 'File Not Found'
+                        res.status(err.status || 404).json({
+                            error: err || 'File Not Found'
+                        });
+                    });
+            }
+            else {
+                res.status(404).json({
+                    error: 'File Not Found'
                 });
-            });
-    }
-    else {
-        res.status(404).json({
-            error: 'File Not Found'
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            const statusCode = err.status || 500;
+            const errorMessage = err.stack || 'Internal Server Error';
+            res.status(statusCode).json({
+                error: errorMessage
+            })
         });
-    }
 };
 
 const postFile = (req, res) => {
-    const derivedKey = deriveKeyBasedOnRole(req.body.master_key, req.body.role);
-    encryptFile(req.file.path, derivedKey)
+    encryptFile(req.file.path, req.body.key)
         .then(results => {
             uploadFile(req.file.path)
                 .then(results => {
-                    const fileMetaData = {
-                        id: randomUUID(),
-                        title: req.body.title,
-                        uploadedAt: new Date().toLocaleString(),
-                        filepath: req.file.path,
-                        mimetype: req.file.mimetype,
-                        originalName: req.file.originalname,
-                        size: convertBytes(req.file.size),
-                        merkleTree: constructMerkleTree(req.file.path)
+                    const apiContent = {
+                        method: 'POST',
+                        instance: 'FILE',
+                        func: 'createFile',
+                        body: {
+                            _id: randomUUID(),
+                            _title: req.body.title,
+                            _filepath: req.file.path,
+                            _uploadedAt: new Date().toLocaleString(),
+                            _mimetype: req.file.mimetype,
+                            _originalName: req.file.originalname,
+                            _size: convertBytes(req.file.size),
+                            _merkleRoot: constructMerkleTree(req.file.path),
+                            _department: req.body.department,
+                            _role: req.body.role
+                        }
                     }
-                    const fileExists = createRecord(filepath, fileMetaData);
-                    if (fileExists) {
-                        deleteHandler(req.file.path);
-                        res.status(201).json({
-                            message: 'File Upload Successful'
+                    fetchAPI(apiContent)
+                        .then(results => {
+                            if (results.sent) {
+                                deleteHandler(req.file.path);
+                                res.status(200).json({
+                                    message: 'File Uploaded Successfuly'
+                                });
+                            }
+                            else {
+                                res.status(400).json({
+                                    error: 'Bad Request. Check Again'
+                                });
+                            }
                         })
-                    }
-                    else {
-                        res.status(409).json({
-                            message: 'File Creation Unsuccessful'
-                        })
-                    }
+                        .catch(err => {
+                            console.log(err);
+                            const statusCode = err.status || 500;
+                            const errorMessage = err.stack || 'Internal Server Error';
+                            res.status(statusCode).json({
+                                error: errorMessage
+                            })
+                        });
                 })
                 .catch(err => {
                     res.status(err.status || 500).json({
@@ -92,54 +144,73 @@ const postFile = (req, res) => {
         });
 };
 
-const patchById = (req, res) => {
-    const updateOps = {};
-    for (const ops of req.body) {
-        updateOps[ops.key] = ops.value;
-    }
-    const updateFlag = updateRecord(filepath, req.params.id, updateOps);
-    if (updateFlag) {
-        res.status(201).json({
-            message: 'Updation Successful'
-        })
-    }
-    else {
-        res.status(409).json({
-            message: 'Updation Unsuccesful'
-        })
-    }
-};
-
 const deleteById = (req, res) => {
-    const file = getRecord(filepath, req.params.id);
-    if (file?.filepath) {
-        deleteFile(file.filepath)
-            .then(results => {
-                const deleteFlag = deleteRecord(filepath, req.params.id);
-                if (deleteFlag) {
-                    res.status(201).json({
-                        message: 'Deletion Successful'
-                    })
-                }
-                else {
-                    res.status(409).json({
-                        message: 'Deletion Unsuccesful'
-                    })
-                }
+    const apiContent = {
+        method: 'GET',
+        instance: 'FILE',
+        func: 'getFileById',
+        params: {
+            _id: req.params.id
+        }
+    }
+    fetchAPI(apiContent)
+        .then(results => {
+            if (results?.output) {
+                const file = results.output;
+                deleteFile(file.filepath)
+                    .then(results => {
+                        const apiContent = {
+                            method: 'POST',
+                            instance: 'FILE',
+                            func: 'deleteFile',
+                            body: {
+                                _id: req.params.id
+                            }
+                        }
+                        fetchAPI(apiContent)
+                            .then(results => {
+                                if (results.sent) {
+                                    res.status(200).json({
+                                        message: 'Deletion Successful'
+                                    })
+                                }
+                                else {
+                                    res.status(400).json({
+                                        message: 'Deletion Unsuccesful'
+                                    })
+                                }
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                const statusCode = err.status || 500;
+                                const errorMessage = err.stack || 'Internal Server Error';
+                                res.status(statusCode).json({
+                                    error: errorMessage
+                                })
+                            });
 
-            })
-            .catch(err => {
-                res.status(err.status || 500).json({
-                    error: err
+                    })
+                    .catch(err => {
+                        res.status(err.status || 500).json({
+                            error: err
+                        })
+                    })
+            }
+            else {
+                res.status(404).json({
+                    error: 'File Not Found'
                 })
-            })
-    }
-    else {
-        res.status(404).json({
-            error: 'File Not Found'
-        })
 
-    }
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            const statusCode = err.status || 500;
+            const errorMessage = err.stack || 'Internal Server Error';
+            res.status(statusCode).json({
+                error: errorMessage
+            })
+        });
 };
 
-module.exports = { getAll, getById, postFile, patchById, deleteById };
+module.exports = { getFilesByDepartment, getById, postFile, deleteById };
