@@ -31,6 +31,7 @@ const fetchAPI = (apiContent) => {
                 if (!response.ok) {
                     const error = new Error(response.statusText);
                     error.status = response.status;
+                    console.log(error);
                     reject(error);
                 }
                 return response.json();
