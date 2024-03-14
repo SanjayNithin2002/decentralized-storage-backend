@@ -9,6 +9,5 @@ router.get('/secret-key', checkAuth, dataOwnerControllers.getSecretKey);
 router.get('/:id', checkAuth, dataOwnerControllers.getById);
 router.post('/login', dataOwnerControllers.login);
 router.post('/signup', dataOwnerControllers.signup);
-router.delete('/:id', checkAuth, dataOwnerControllers.deleteById);
 
 module.exports = router;
