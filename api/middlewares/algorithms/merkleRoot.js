@@ -58,18 +58,20 @@ const compareMerkleTrees = (tree1, tree2) => {
     return stack1.length === 0 && stack2.length === 0;
 }
 
-const verifyMerkleTree = (calculatedMerkleTree, filepath) => {
-    const newTree = constructMerkleTree(filepath);
-    return compareMerkleTrees(calculatedMerkleTree, newTree);
+const verifyMerkleTree = (storedMerkleTree, filepath) => {
+    const calculatedMerkleTree = constructMerkleTree(filepath);
+    return compareMerkleTrees(storedMerkleTree, calculatedMerkleTree);
 } 
 
-const verifyMerkleRoot = (calculatedMerkleRoot, filepath) => {
-    const newMerkleTree = constructMerkleTree(filepath);
-    const newMerkleRoot = newMerkleTree.getRoot().toString('hex');
-    return calculatedMerkleRoot === newMerkleRoot;
+const verifyMerkleRoot = (storedMerkleRoot, filepath) => {
+    const calculatedMerkleRoot = constructMerkleTree(filepath);
+    return {
+        calculatedMerkleRoot: calculatedMerkleRoot,
+        storedMerkleRoot: storedMerkleRoot
+    }
 }
 
-module.exports = {constructMerkleTree, verifyMerkleRoot};
+module.exports = {constructMerkleTree};
 
 
 

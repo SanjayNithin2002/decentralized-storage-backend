@@ -6,8 +6,8 @@ const checkAuth = require('../middlewares/utilities/checkAuth');
 const fileControllers = require('../controllers/Files');
 
 router.get('/dept/:dept', checkAuth, fileControllers.getFilesByDepartment);
-router.get('/:id', checkAuth, fileControllers.getById);
 router.post('/:id', checkAuth, fileControllers.getById );
+router.post('/integrity/:id', checkAuth, fileControllers.verifyIntegrity);
 router.post('/', checkAuth, uploadHandler.single('file'), fileControllers.postFile);
 router.delete('/:id', checkAuth, fileControllers.deleteById);
 
