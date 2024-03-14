@@ -139,7 +139,7 @@ const signup = (req, res) => {
                 });
             }
             else {
-                res.status(401).json({
+                res.status(400).json({
                     error: 'User signup failed. Try again.'
                 })
             }
@@ -171,7 +171,7 @@ const approveById = (req, res) => {
                 });
             }
             else {
-                res.status(401).json({
+                res.status(400).json({
                     error: 'User approval failed.'
                 })
             }
@@ -203,7 +203,7 @@ const deleteById = (req, res) => {
                 });
             }
             else {
-                res.status(401).json({
+                res.status(400).json({
                     error: 'User deletion failed.'
                 })
             }

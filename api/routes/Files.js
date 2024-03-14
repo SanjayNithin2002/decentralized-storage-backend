@@ -5,10 +5,10 @@ const uploadHandler = require('../middlewares/utilities/uploadHandler');
 const checkAuth = require('../middlewares/utilities/checkAuth');
 const fileControllers = require('../controllers/Files');
 
-router.get('/', checkAuth, fileControllers.getAll);
-router.post('/:id',checkAuth, fileControllers.getById );
+router.get('/dept/:dept', checkAuth, fileControllers.getFilesByDepartment);
+router.get('/:id', checkAuth, fileControllers.getById);
+router.post('/:id', checkAuth, fileControllers.getById );
 router.post('/', checkAuth, uploadHandler.single('file'), fileControllers.postFile);
-router.patch('/:id', checkAuth, fileControllers.patchById);
 router.delete('/:id', checkAuth, fileControllers.deleteById);
 
 module.exports = router;
