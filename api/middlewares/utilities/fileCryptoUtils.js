@@ -47,7 +47,6 @@ const decryptFile = (filepath, key) => {
             if (err) {
                 const error = new Error(`Error reading file: ${filepath}.`);
                 error.status = err.status || 500;
-                console.log(error);
                 reject(error);
             } else {
                 const decryptedFileData = decryptAes(encryptedFileData.toString(), key); // Convert encrypted data to string before decrypting
@@ -56,7 +55,6 @@ const decryptFile = (filepath, key) => {
                         if (err) {
                             const error = new Error(`Error writing decrypted data to the file: ${filepath}.`);
                             error.status = err.status || 500;
-                            console.log(error);
                             reject(error);
                         } else {
                             resolve({
@@ -67,7 +65,6 @@ const decryptFile = (filepath, key) => {
                 } else {
                     const error = new Error('Decryption Failed.');
                     error.status = 500;
-                    console.log(error);
                     reject(error);
                 }
             }

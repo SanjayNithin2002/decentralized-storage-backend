@@ -20,13 +20,10 @@ const getAll = (req, res) => {
             });
         })
         .catch(err => {
-            console.log(err);
-            const statusCode = err.status || 500;
-            const errorMessage = err.stack || 'Internal Server Error';
-            res.status(statusCode).json({
-                error: errorMessage
+            res.status(500).json({
+                error: 'Failed to fetch all users. Try Again.'
             })
-        });
+        })
 };
 
 const getById = (req, res) => {
@@ -45,13 +42,10 @@ const getById = (req, res) => {
             });
         })
         .catch(err => {
-            console.log(err);
-            const statusCode = err.status || 500;
-            const errorMessage = err.stack || 'Internal Server Error';
-            res.status(statusCode).json({
-                error: errorMessage
+            res.status(500).json({
+                error: 'Failed to fetch user. Check if the user exists and try again.'
             })
-        });
+        })
 };
 
 const getByDepartment = (req, res) => {
@@ -70,13 +64,10 @@ const getByDepartment = (req, res) => {
             });
         })
         .catch(err => {
-            console.log(err);
-            const statusCode = err.status || 500;
-            const errorMessage = err.stack || 'Internal Server Error';
-            res.status(statusCode).json({
-                error: errorMessage
+            res.status(500).json({
+                error: 'Failed to fetch users by department. Check details and try again.'
             })
-        });
+        })
 };
 
 const login = (req, res) => {
@@ -108,13 +99,10 @@ const login = (req, res) => {
             }
         })
         .catch(err => {
-            console.log(err);
-            const statusCode = err.status || 500;
-            const errorMessage = err.stack || 'Internal Server Error';
-            res.status(statusCode).json({
-                error: errorMessage
+            res.status(500).json({
+                error: 'Failed to login the user. Check credentials and try again.'
             })
-        });
+        })
 };
 
 const signup = (req, res) => {
@@ -139,19 +127,16 @@ const signup = (req, res) => {
                 });
             }
             else {
-                res.status(400).json({
-                    error: 'User signup failed. Try again.'
+                res.status(500).json({
+                    error: 'Failed to signup the user. Try again.'
                 })
             }
         })
         .catch(err => {
-            console.log(err);
-            const statusCode = err.status || 500;
-            const errorMessage = err.stack || 'Internal Server Error';
-            res.status(statusCode).json({
-                error: errorMessage
+            res.status(500).json({
+                error: 'Failed to signup the user. Try again.'
             })
-        });
+        })
 };
 
 const approveById = (req, res) => {
@@ -171,19 +156,16 @@ const approveById = (req, res) => {
                 });
             }
             else {
-                res.status(400).json({
-                    error: 'User approval failed.'
+                res.status(500).json({
+                    error: 'Failed to approve the user.'
                 })
             }
         })
         .catch(err => {
-            console.log(err);
-            const statusCode = err.status || 500;
-            const errorMessage = err.stack || 'Internal Server Error';
-            res.status(statusCode).json({
-                error: errorMessage
+            res.status(500).json({
+                error: 'Failed to approve the user.'
             })
-        });
+        })
 }
 
 const deleteById = (req, res) => {
@@ -203,19 +185,16 @@ const deleteById = (req, res) => {
                 });
             }
             else {
-                res.status(400).json({
-                    error: 'User deletion failed.'
+                res.status(500).json({
+                    error: 'Failed to delete the user.'
                 })
             }
         })
         .catch(err => {
-            console.log(err);
-            const statusCode = err.status || 500;
-            const errorMessage = err.stack || 'Internal Server Error';
-            res.status(statusCode).json({
-                error: errorMessage
+            res.status(500).json({
+                error: 'Failed to delete the user.'
             })
-        });
+        })
 };
 
 module.exports = { getAll, getById, getByDepartment, login, signup, approveById, deleteById };

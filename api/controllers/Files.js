@@ -28,13 +28,10 @@ const getFilesByDepartment = (req, res) => {
             });
         })
         .catch(err => {
-            console.log(err);
-            const statusCode = err.status || 500;
-            const errorMessage = err.stack || 'Internal Server Error';
-            res.status(statusCode).json({
-                error: errorMessage
+            res.status(500).json({
+                error: 'Failed to fetch files. Check department and try again.'
             })
-        });
+        })
 };
 
 const getById = (req, res) => {
@@ -59,14 +56,15 @@ const getById = (req, res) => {
                                 });
                             })
                             .catch(err => {
-                                res.status(err.status || 500).json({
-                                    error: err
+                                console.log(err);
+                                res.status(500).json({
+                                    error: 'Decryption Failed'
                                 })
                             })
                     })
                     .catch(err => {
-                        res.status(err.status || 404).json({
-                            error: err || 'File Not Found'
+                        res.status(404).json({
+                            error: 'File Not Found'
                         });
                     });
             }
@@ -77,11 +75,8 @@ const getById = (req, res) => {
             }
         })
         .catch(err => {
-            console.log(err);
-            const statusCode = err.status || 500;
-            const errorMessage = err.stack || 'Internal Server Error';
-            res.status(statusCode).json({
-                error: errorMessage
+            res.status(500).json({
+                error: 'Failed to fetch file. Try again.'
             })
         });
 };
@@ -113,14 +108,14 @@ const verifyIntegrity = (req, res) => {
                                         });
                                     })
                                     .catch(err => {
-                                        res.status(err.status || 500).json({
-                                            error: err || "Failed to construct Merkle Tree from the given file"
+                                        res.status(500).json({
+                                            error: "Failed to construct Merkle Tree from the given file"
                                         })
                                     })
                             })
                             .catch(err => {
-                                res.status(err.status || 500).json({
-                                    error: err
+                                res.status(500).json({
+                                    error: 'Failed to decrypt file.'
                                 })
                             })
                     })
@@ -137,11 +132,8 @@ const verifyIntegrity = (req, res) => {
             }
         })
         .catch(err => {
-            console.log(err);
-            const statusCode = err.status || 500;
-            const errorMessage = err.stack || 'Internal Server Error';
-            res.status(statusCode).json({
-                error: errorMessage
+            res.status(500).json({
+                error: 'Failed to fetch file. Try again.'
             })
         });
 };
@@ -185,29 +177,27 @@ const postFile = (req, res) => {
                                     }
                                 })
                                 .catch(err => {
-                                    const statusCode = err.status || 500;
-                                    const errorMessage = err.stack || 'Internal Server Error';
-                                    res.status(statusCode).json({
-                                        error: errorMessage
+                                    res.status(500).json({
+                                        error: 'Failed to upload the file.'
                                     })
                                 })
                         })
                         .catch(err => {
-                            res.status(err.status || 500).json({
-                                error: err
+                            res.status(500).json({
+                                error: 'Failed to upload the file.'
                             })
                         })
                 })
                 .catch(err => {
-                    res.status(err.status || 500).json({
-                        error: err
+                    res.status(500).json({
+                        error: 'Failed to upload the file.'
                     })
                 })
         })
         .catch(err => {
-            res.status(500 || err.status).json({
-                error: err || 'Failed to Construct Merkle Tree'
-            });
+            res.status(500).json({
+                error: 'Failed to upload the file.'
+            })
         })
 };
 
@@ -242,24 +232,20 @@ const deleteById = (req, res) => {
                                     })
                                 }
                                 else {
-                                    res.status(400).json({
-                                        message: 'Deletion Unsuccesful'
+                                    res.status(500).json({
+                                        error: 'Failed to delete the file.'
                                     })
                                 }
                             })
                             .catch(err => {
-                                console.log(err);
-                                const statusCode = err.status || 500;
-                                const errorMessage = err.stack || 'Internal Server Error';
-                                res.status(statusCode).json({
-                                    error: errorMessage
+                                res.status(500).json({
+                                    error: 'Failed to delete the file.'
                                 })
-                            });
-
+                            })
                     })
                     .catch(err => {
-                        res.status(err.status || 500).json({
-                            error: err
+                        res.status(500).json({
+                            error: 'Failed to delete the file.'
                         })
                     })
             }
@@ -271,13 +257,10 @@ const deleteById = (req, res) => {
             }
         })
         .catch(err => {
-            console.log(err);
-            const statusCode = err.status || 500;
-            const errorMessage = err.stack || 'Internal Server Error';
-            res.status(statusCode).json({
-                error: errorMessage
+            res.status(500).json({
+                error: 'Failed to delete the file.'
             })
-        });
+        })
 };
 
 module.exports = { getFilesByDepartment, getById, verifyIntegrity, postFile, deleteById };

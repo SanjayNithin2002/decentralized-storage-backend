@@ -21,11 +21,8 @@ const getAll = (req, res) => {
             });
         })
         .catch(err => {
-            console.log(err);
-            const statusCode = err.status || 500;
-            const errorMessage = err.stack || 'Internal Server Error';
-            res.status(statusCode).json({
-                error: errorMessage
+            res.status(500).json({
+                error: 'Failed to fetch all data owners.'
             })
         });
 };
@@ -46,11 +43,8 @@ const getById = (req, res) => {
             });
         })
         .catch(err => {
-            console.log(err);
-            const statusCode = err.status || 500;
-            const errorMessage = err.stack || 'Internal Server Error';
-            res.status(statusCode).json({
-                error: errorMessage
+            res.status(500).json({
+                error: 'Failed to fetch the data owner.'
             })
         });
 };
@@ -90,11 +84,8 @@ const login = (req, res) => {
             }
         })
         .catch(err => {
-            console.log(err);
-            const statusCode = err.status || 500;
-            const errorMessage = err.stack || 'Internal Server Error';
-            res.status(statusCode).json({
-                error: errorMessage
+            res.status(500).json({
+                error: 'Failed to login the data owner.'
             })
         });
 };
@@ -120,17 +111,14 @@ const signup = (req, res) => {
                 });
             }
             else {
-                res.status(400).json({
-                    error: 'Data Owner signup failed. Try again.'
+                res.status(500).json({
+                    error: 'Failed to signup the data owner.'
                 })
             }
         })
         .catch(err => {
-            console.log(err);
-            const statusCode = err.status || 500;
-            const errorMessage = err.stack || 'Internal Server Error';
-            res.status(statusCode).json({
-                error: errorMessage
+            res.status(500).json({
+                error: 'Failed to signup the data owner.'
             })
         });
 }
