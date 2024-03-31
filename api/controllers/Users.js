@@ -82,13 +82,18 @@ const login = (req, res) => {
     fetchAPI(apiContent)
         .then(results => {
             const user = results.output;
+            console.log(user);
             if (req.body.email === user.email && verifyPassword(user.password, req.body.password)) {
                 res.status(201).json({
                     message: 'Auth Successful',
                     user: user,
                     token: generateToken({
                         id: user.id,
-                        email: user.email
+                        email: user.email,
+                        department: user.department,
+                        role: user.role,
+                        status: user.status,
+                        type: 'user'
                     })
                 });
             }
@@ -106,12 +111,13 @@ const login = (req, res) => {
 };
 
 const signup = (req, res) => {
+    const userId = randomUUID();
     const apiContent = {
         method: 'POST',
         instance: 'USER',
         func: 'createUser',
         body: {
-            _id: randomUUID(),
+            _id: userId,
             _name: req.body.name,
             _email: req.body.email,
             _password: sha256(req.body.password),
@@ -123,7 +129,7 @@ const signup = (req, res) => {
         .then(results => {
             if (results.sent) {
                 res.status(201).json({
-                    message: 'User Successfuly Created'
+                    message: 'Transaction executed successfuly. Try Login.'
                 });
             }
             else {

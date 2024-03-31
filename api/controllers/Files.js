@@ -141,11 +141,13 @@ const verifyIntegrity = (req, res) => {
 const postFile = (req, res) => {
     constructMerkleTree(req.file.path)
         .then(merkleRoot => {
-            console.log(merkleRoot);
+            console.log(`Merkle Root constructed: ${merkleRoot}`);
             encryptFile(req.file.path, req.body.key)
                 .then(results => {
+                    console.log('Encrypted file.');
                     uploadFile(req.file.path)
                         .then(results => {
+                            console.log('Uploaded file to cloud.')
                             const apiContent = {
                                 method: 'POST',
                                 instance: 'FILE',
@@ -165,6 +167,8 @@ const postFile = (req, res) => {
                             }
                             fetchAPI(apiContent)
                                 .then(results => {
+                                    console.log('Added file metadata to blockchain.');
+                                    console.log(results);
                                     if (results.sent) {
                                         res.status(200).json({
                                             message: 'File Uploaded Successfuly'
@@ -177,24 +181,28 @@ const postFile = (req, res) => {
                                     }
                                 })
                                 .catch(err => {
+                                    console.log(err);
                                     res.status(500).json({
                                         error: 'Failed to upload the file.'
                                     })
                                 })
                         })
                         .catch(err => {
+                            console.log(err);
                             res.status(500).json({
                                 error: 'Failed to upload the file.'
                             })
                         })
                 })
                 .catch(err => {
+                    console.log(err);
                     res.status(500).json({
                         error: 'Failed to upload the file.'
                     })
                 })
         })
         .catch(err => {
+            console.log(err);
             res.status(500).json({
                 error: 'Failed to upload the file.'
             })

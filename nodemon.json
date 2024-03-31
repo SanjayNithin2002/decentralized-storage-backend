@@ -17,7 +17,7 @@
         "KALEIDO_ADDRESS": "0x436c188eF8AFee087f0992d6370866399A04C929",
         "KALEIDO_AUTH_HEADER": "Basic dTBrMHUyaWl6MTpEWUpTVzFld1NQNWkxUlNkSmdnWjQyVkZqTUhsZ092eS00aGtnS2RJaDFv",
         "FILE_ENDPOINT": "instances/0x21bf3af3421b3f8e504ea7a0d6bdb522f3b54f0c",
-        "USER_ENDPOINT": "instances/0x199b08ab724d1781af4fdf00252e8fbbc3732acb",
+        "USER_ENDPOINT": "instances/0x1ffb99a357d806f79a9c260869d2a9b52cf70b38",
         "DATA_OWNER_ENDPOINT": "instances/0x4b0e5d6ca4b4aad4a3e1d9e0e53563a7f529d5c8"
     }
 }

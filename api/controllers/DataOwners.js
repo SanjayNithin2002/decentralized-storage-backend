@@ -73,7 +73,9 @@ const login = (req, res) => {
                     user: dataOwner,
                     token: generateToken({
                         id: dataOwner.id,
-                        email: dataOwner.email
+                        email: dataOwner.email,
+                        department: dataOwner.department,
+                        type: 'Data Owner'
                     })
                 });
             }
