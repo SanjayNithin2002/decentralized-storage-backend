@@ -81,7 +81,7 @@ const getSecretKey = async (req, res) => {
 
             await Promise.all(secrets.keys.map(async key => {
                 await storeKey({department: key.department, role: key.role}, {secret_key: key.secret_key});
-                const filename = `${key.role}.key`;
+                const filename =`./uploads/${key.role}.key`;
                 fs.writeFileSync(filename, key.secret_key);
                 zip.append(fs.createReadStream(filename), { name: filename }); // Add each file to the zip
             }));

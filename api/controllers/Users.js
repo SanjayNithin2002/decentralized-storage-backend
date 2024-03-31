@@ -76,7 +76,7 @@ const getSecretKey = async (req, res) => {
     if (req.userData.type === 'User') {
         try {
             const data = await retrieveKey({ department: req.userData.department, role: req.userData.role });
-            const filename = `${req.userData.role}.key`;
+            const filename = `./uploads/${req.userData.role}.key`;
             fs.writeFileSync(filename, data.secret_key);
             res.setHeader('Content-disposition', 'attachment; filename=' + filename);
             res.setHeader('Content-type', 'application/octet-stream');
