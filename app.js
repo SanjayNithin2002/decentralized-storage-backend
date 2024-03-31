@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const schedule = require('node-schedule');
 
 const app = express();
 const port = process.env.port || 3000;
@@ -8,8 +9,12 @@ const port = process.env.port || 3000;
 const userRoutes = require('./api/routes/Users');
 const fileRoutes = require('./api/routes/Files');
 const dataOwnerRoutes = require('./api/routes/DataOwners');
+const clearDirectory = require('./api/middlewares/utilities/clearDirectory');
 
 // Middlewares
+const job = schedule.scheduleJob('*/5 * * * *', () => {
+    clearDirectory('./uploads')
+});
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

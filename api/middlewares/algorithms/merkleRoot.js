@@ -14,11 +14,17 @@ const splitFileIntoChunks = (fileData, chunkSize = 1024) => {
     );
 }
 
-const constructMerkleTree = (filepath) => {
-    const fileData = readFile(filepath);
-    const leaves = splitFileIntoChunks(fileData);
-    const tree = new MerkleTree(leaves, sha256);
-    return tree.getRoot().toString('hex');
+const constructMerkleTree = async (filepath) => {
+    return new Promise((resolve, reject) => {
+        try {
+            const fileData = readFile(filepath);
+            const leaves = splitFileIntoChunks(fileData);
+            const tree = new MerkleTree(leaves, sha256);
+            resolve(tree.getRoot().toString('hex'));
+        } catch (err) {
+            reject(err);
+        }
+    })
 }
 
 const compareMerkleTrees = (tree1, tree2) => {
@@ -53,7 +59,7 @@ const compareMerkleTrees = (tree1, tree2) => {
             stack2.push(node2.right);
         }
     }
-    
+
     // If one tree has more nodes than the other, they are not equal
     return stack1.length === 0 && stack2.length === 0;
 }
@@ -61,7 +67,7 @@ const compareMerkleTrees = (tree1, tree2) => {
 const verifyMerkleTree = (storedMerkleTree, filepath) => {
     const calculatedMerkleTree = constructMerkleTree(filepath);
     return compareMerkleTrees(storedMerkleTree, calculatedMerkleTree);
-} 
+}
 
 const verifyMerkleRoot = (storedMerkleRoot, filepath) => {
     const calculatedMerkleRoot = constructMerkleTree(filepath);
@@ -71,7 +77,7 @@ const verifyMerkleRoot = (storedMerkleRoot, filepath) => {
     }
 }
 
-module.exports = {constructMerkleTree};
+module.exports = { constructMerkleTree };
 
 
 

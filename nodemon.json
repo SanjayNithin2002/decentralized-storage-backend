@@ -13,11 +13,11 @@
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
         "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-vgi3b%40decentralized-cloud-stor-52dcc.iam.gserviceaccount.com",
         "universe_domain": "googleapis.com",
-        "KALEIDO_URL": "https://u0klfm5fst-u0csnd4xeh-connect.us0-aws.kaleido.io/",
-        "KALEIDO_ADDRESS": "0xfcCb41f86Eb9c7FD8471bc343aC0063Cc3C3cE5A",
-        "KALEIDO_AUTH_HEADER": "Basic dTBmdjFmdmJzYjpmaWdpVENvY3F2Y2J5QUlnTHNURm5pZGhIR1JJYUppOXJlSWc0T3hNTVU4",
-        "FILE_ENDPOINT": "instances/0xdb7c4e6b189e4523ab176b0446a857afa2848159",
-        "USER_ENDPOINT": "instances/0xfb4d34021188807a702b86b6f8aba0bc35b0733d",
-        "DATA_OWNER_ENDPOINT": "instances/0xf5dda22a8cbc5aa5a186c587a72ad251d1bae66b"
+        "KALEIDO_URL": "https://u0z9m78ar2-u0l0kxhoqq-connect.us0-aws.kaleido.io/",
+        "KALEIDO_ADDRESS": "0x436c188eF8AFee087f0992d6370866399A04C929",
+        "KALEIDO_AUTH_HEADER": "Basic dTBrMHUyaWl6MTpEWUpTVzFld1NQNWkxUlNkSmdnWjQyVkZqTUhsZ092eS00aGtnS2RJaDFv",
+        "FILE_ENDPOINT": "instances/0x21bf3af3421b3f8e504ea7a0d6bdb522f3b54f0c",
+        "USER_ENDPOINT": "instances/0x199b08ab724d1781af4fdf00252e8fbbc3732acb",
+        "DATA_OWNER_ENDPOINT": "instances/0x4b0e5d6ca4b4aad4a3e1d9e0e53563a7f529d5c8"
     }
 }
