@@ -8,6 +8,7 @@ const sha256 = require('../middlewares/algorithms/sha256');
 const generateToken = require('../middlewares/utilities/generateToken');
 const verifyPassword = require('../middlewares/utilities/verifyPassword');
 const generateSecretKey = require('../middlewares/utilities/generateSecretKey');
+const { storeKey, retrieveKey, deleteKey } = require('../middlewares/utilities/keystore');
 
 const getAll = (req, res) => {
     const apiContent = {
@@ -50,13 +51,68 @@ const getById = (req, res) => {
         });
 };
 
-const getSecretKey = (req, res) => {
-    const secretKey = generateSecretKey();
-    const filename = 'secret.key';
-    fs.writeFileSync(filename, secretKey);
-    res.setHeader('Content-disposition', 'attachment; filename=' + filename);
-    res.setHeader('Content-type', 'application/octet-stream');
-    res.status(200).send(fs.readFileSync(filename));
+const getSecretKey = async (req, res) => {
+    if (req.userData.type === 'Data Owner') {
+        const secrets = {
+            keys: [
+                {
+                    department: req.userData.department,
+                    role: 'Student',
+                    secret_key: generateSecretKey()
+                },
+                {
+                    department: req.userData.department,
+                    role: 'Teacher',
+                    secret_key: generateSecretKey()
+                },
+                {
+                    department: req.userData.department,
+                    role: 'Researcher',
+                    secret_key: generateSecretKey()
+                },
+            ]
+        }
+        try {
+            const settledPromises = await Promise.all(secrets.keys.map(key => storeKey({ department: key.department, role: key.role }, { secret_key: key.secret_key })));
+            const filename = 'secrets.json';
+            fs.writeFileSync(filename, JSON.stringify(secrets));
+            res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+            res.setHeader('Content-type', 'application/octet-stream');
+            res.status(200).send(fs.readFileSync(filename));
+        }
+        catch (err) {
+            res.status(500).json({
+                error: 'Failed to generate keys for all roles'
+            });
+        }
+    }
+    else {
+        res.status(401).json({
+            error: 'You are unauthorized to execute this request.'
+        })
+    }
+}
+
+const clearKeys = async (req, res) => {
+    if (req.userData.type === 'Data Owner') {
+        const roles = ['Student', 'Teacher', 'Researcher'];
+        try {
+            const settledPromies = await Promise.all(roles.map(role => deleteKey({ department: req.userData.department, role: role })));
+            res.status(200).json({
+                message: 'Keys Delete Successfuly'
+            });
+        }
+        catch (err) {
+            res.status(500).json({
+                error: 'Failed to delete keys'
+            });
+        }
+    }
+    else {
+        res.status(401).json({
+            error: 'You are unauthorized to execute this request.'
+        })
+    }
 }
 
 const login = (req, res) => {
@@ -129,4 +185,4 @@ const signup = (req, res) => {
         });
 }
 
-module.exports = { getAll, getById, getSecretKey, login, signup }
+module.exports = { getAll, getById, getSecretKey, clearKeys, login, signup }

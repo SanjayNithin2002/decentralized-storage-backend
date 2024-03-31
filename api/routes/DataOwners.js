@@ -6,6 +6,7 @@ const dataOwnerControllers = require('../controllers/DataOwners');
 
 router.get('/', checkAuth, dataOwnerControllers.getAll);
 router.get('/secretkey', checkAuth, dataOwnerControllers.getSecretKey);
+router.post('/clearKeys', checkAuth, dataOwnerControllers.clearKeys);
 router.get('/:id', checkAuth, dataOwnerControllers.getById);
 router.post('/login', dataOwnerControllers.login);
 router.post('/signup', dataOwnerControllers.signup);
