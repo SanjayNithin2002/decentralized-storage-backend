@@ -1,6 +1,7 @@
 // Import packages
 const { randomUUID } = require('crypto');
 const fs = require('fs');
+const archiver = require('archiver');
 
 // Import Middlewares
 const fetchAPI = require('../../kaleido/fetchAPI');
@@ -73,12 +74,19 @@ const getSecretKey = async (req, res) => {
             ]
         }
         try {
-            const settledPromises = await Promise.all(secrets.keys.map(key => storeKey({ department: key.department, role: key.role }, { secret_key: key.secret_key })));
-            const filename = 'secrets.json';
-            fs.writeFileSync(filename, JSON.stringify(secrets));
-            res.setHeader('Content-disposition', 'attachment; filename=' + filename);
-            res.setHeader('Content-type', 'application/octet-stream');
-            res.status(200).send(fs.readFileSync(filename));
+            const zip = archiver('zip');
+            res.attachment('secrets.zip'); // Set the name of the zip file to be downloaded
+
+            zip.pipe(res); // Send the zip file in the response
+
+            await Promise.all(secrets.keys.map(async key => {
+                await storeKey({department: key.department, role: key.role}, {secret_key: key.secret_key});
+                const filename = `${key.role}.key`;
+                fs.writeFileSync(filename, key.secret_key);
+                zip.append(fs.createReadStream(filename), { name: filename }); // Add each file to the zip
+            }));
+
+            zip.finalize(); // Finalize the zip file
         }
         catch (err) {
             res.status(500).json({

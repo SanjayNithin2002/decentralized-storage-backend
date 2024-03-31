@@ -10,6 +10,7 @@
   "author": "SanjayNithin2002",
   "license": "MIT",
   "dependencies": {
+    "archiver": "^7.0.1",
     "body-parser": "^1.20.2",
     "cover_crypt": "^6.0.4",
     "crypto": "^1.0.1",

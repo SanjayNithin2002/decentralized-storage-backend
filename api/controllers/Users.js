@@ -1,11 +1,13 @@
 // Import packages
 const { randomUUID } = require('crypto');
+const fs = require('fs');
 
 // Import Middlewares
 const fetchAPI = require('../../kaleido/fetchAPI');
 const generateToken = require('../middlewares/utilities/generateToken');
 const sha256 = require('../middlewares/algorithms/sha256');
 const verifyPassword = require('../middlewares/utilities/verifyPassword');
+const { retrieveKey } = require('../middlewares/utilities/keystore');
 
 const getAll = (req, res) => {
     const apiContent = {
@@ -70,6 +72,28 @@ const getByDepartment = (req, res) => {
         })
 };
 
+const getSecretKey = async (req, res) => {
+    if (req.userData.type === 'User') {
+        try {
+            const data = await retrieveKey({ department: req.userData.department, role: req.userData.role });
+            const filename = `${req.userData.role}.key`;
+            fs.writeFileSync(filename, data.secret_key);
+            res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+            res.setHeader('Content-type', 'application/octet-stream');
+            res.status(200).send(fs.readFileSync(filename));
+        }
+        catch (err) {
+            res.status(500).json({
+                error: 'Failed to generate key.'
+            });
+        }
+    }
+    else {
+        res.status(401).json({
+            error: 'You are unauthorized to execute this request.'
+        })
+    }
+}
 const login = (req, res) => {
     const apiContent = {
         method: 'GET',
@@ -93,7 +117,7 @@ const login = (req, res) => {
                         department: user.department,
                         role: user.role,
                         status: user.status,
-                        type: 'user'
+                        type: 'User'
                     })
                 });
             }
@@ -203,5 +227,5 @@ const deleteById = (req, res) => {
         })
 };
 
-module.exports = { getAll, getById, getByDepartment, login, signup, approveById, deleteById };
+module.exports = { getAll, getById, getByDepartment, getSecretKey, login, signup, approveById, deleteById };
 
