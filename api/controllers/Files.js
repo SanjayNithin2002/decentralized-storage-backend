@@ -10,6 +10,7 @@ const deleteHandler = require('../middlewares/utilities/deleteHandler');
 const { encryptFile, decryptFile } = require('../middlewares/utilities/fileCryptoUtils');
 const deriveKeyBasedOnRole = require('../middlewares/utilities/deriveKeyBasedOnRole');
 const { constructMerkleTree } = require('../middlewares/algorithms/merkleRoot');
+const readFile = require('../middlewares/utilities/readFile');
 
 
 const getFilesByDepartment = (req, res) => {
@@ -49,16 +50,24 @@ const getById = (req, res) => {
             if (file?.filepath) {
                 getFile(file.filepath)
                     .then(firebaseResults => {
-                        decryptFile(file.filepath, req.body.key)
-                            .then(decryptResults => {
-                                res.download(file.filepath, (err) => {
-                                    deleteHandler(file.filepath);
-                                });
+                        readFile(req.file.path)
+                            .then(key => {
+                                decryptFile(file.filepath, key)
+                                    .then(decryptResults => {
+                                        res.download(file.filepath, (err) => {
+                                            deleteHandler(file.filepath);
+                                        });
+                                    })
+                                    .catch(err => {
+                                        console.log(err);
+                                        res.status(500).json({
+                                            error: 'Decryption Failed'
+                                        })
+                                    })
                             })
                             .catch(err => {
-                                console.log(err);
                                 res.status(500).json({
-                                    error: 'Decryption Failed'
+                                    message: 'Failed to read the key file.'
                                 })
                             })
                     })
@@ -96,26 +105,34 @@ const verifyIntegrity = (req, res) => {
             if (file?.filepath) {
                 getFile(file.filepath)
                     .then(firebaseResults => {
-                        decryptFile(file.filepath, req.body.key)
-                            .then(decryptResults => {
-                                constructMerkleTree(file.filepath)
-                                    .then(calculatedMerkleRoot => {
-                                        const storedMerkleRoot = file.merkleRoot;
-                                        res.status(200).json({
-                                            calculatedMerkleRoot: calculatedMerkleRoot,
-                                            storedMerkleRoot: storedMerkleRoot,
-                                            integrityPreserved: (storedMerkleRoot === calculatedMerkleRoot)
-                                        });
+                        readFile(req.file.path)
+                            .then(key => {
+                                decryptFile(file.filepath, key)
+                                    .then(decryptResults => {
+                                        constructMerkleTree(file.filepath)
+                                            .then(calculatedMerkleRoot => {
+                                                const storedMerkleRoot = file.merkleRoot;
+                                                res.status(200).json({
+                                                    calculatedMerkleRoot: calculatedMerkleRoot,
+                                                    storedMerkleRoot: storedMerkleRoot,
+                                                    integrityPreserved: (storedMerkleRoot === calculatedMerkleRoot)
+                                                });
+                                            })
+                                            .catch(err => {
+                                                res.status(500).json({
+                                                    error: "Failed to construct Merkle Tree from the given file"
+                                                })
+                                            })
                                     })
                                     .catch(err => {
                                         res.status(500).json({
-                                            error: "Failed to construct Merkle Tree from the given file"
+                                            error: 'Failed to decrypt file.'
                                         })
                                     })
                             })
                             .catch(err => {
                                 res.status(500).json({
-                                    error: 'Failed to decrypt file.'
+                                    error: 'Failed to read the key file.'
                                 })
                             })
                     })
@@ -139,46 +156,59 @@ const verifyIntegrity = (req, res) => {
 };
 
 const postFile = (req, res) => {
-    constructMerkleTree(req.file.path)
-        .then(merkleRoot => {
-            console.log(`Merkle Root constructed: ${merkleRoot}`);
-            encryptFile(req.file.path, req.body.key)
-                .then(results => {
-                    console.log('Encrypted file.');
-                    uploadFile(req.file.path)
+    const uploadedFile = req.files.file[0];
+    const keyFile = req.files.key[0];
+    console.log(keyFile);
+    readFile(keyFile.path)
+        .then(key => {
+            console.log(`Read key file: ${key}`);
+            constructMerkleTree(uploadedFile.path)
+                .then(merkleRoot => {
+                    console.log(`Merkle Root constructed: ${merkleRoot}`);
+                    encryptFile(uploadedFile.path, key)
                         .then(results => {
-                            console.log('Uploaded file to cloud.')
-                            const apiContent = {
-                                method: 'POST',
-                                instance: 'FILE',
-                                func: 'createFile',
-                                body: {
-                                    _id: randomUUID(),
-                                    _title: req.body.title,
-                                    _filepath: req.file.path,
-                                    _uploadedAt: new Date().toLocaleString(),
-                                    _mimetype: req.file.mimetype,
-                                    _originalName: req.file.originalname,
-                                    _size: convertBytes(req.file.size),
-                                    _merkleRoot: merkleRoot,
-                                    _department: req.body.department,
-                                    _role: req.body.role
-                                }
-                            }
-                            fetchAPI(apiContent)
+                            console.log('Encrypted file.');
+                            uploadFile(uploadedFile.path)
                                 .then(results => {
-                                    console.log('Added file metadata to blockchain.');
-                                    console.log(results);
-                                    if (results.sent) {
-                                        res.status(200).json({
-                                            message: 'File Uploaded Successfuly'
-                                        });
+                                    console.log('Uploaded file to cloud.')
+                                    const apiContent = {
+                                        method: 'POST',
+                                        instance: 'FILE',
+                                        func: 'createFile',
+                                        body: {
+                                            _id: randomUUID(),
+                                            _title: req.body.title,
+                                            _filepath: uploadedFile.path,
+                                            _uploadedAt: new Date().toLocaleString(),
+                                            _mimetype: uploadedFile.mimetype,
+                                            _originalName: uploadedFile.originalname,
+                                            _size: convertBytes(uploadedFile.size),
+                                            _merkleRoot: merkleRoot,
+                                            _department: req.body.department,
+                                            _role: req.body.role
+                                        }
                                     }
-                                    else {
-                                        res.status(400).json({
-                                            error: 'Bad Request. Check Again'
-                                        });
-                                    }
+                                    fetchAPI(apiContent)
+                                        .then(results => {
+                                            console.log('Added file metadata to blockchain.');
+                                            console.log(results);
+                                            if (results.sent) {
+                                                res.status(201).json({
+                                                    message: 'File Uploaded Successfuly'
+                                                });
+                                            }
+                                            else {
+                                                res.status(400).json({
+                                                    error: 'Bad Request. Check Again'
+                                                });
+                                            }
+                                        })
+                                        .catch(err => {
+                                            console.log(err);
+                                            res.status(500).json({
+                                                error: 'Failed to upload the file.'
+                                            })
+                                        })
                                 })
                                 .catch(err => {
                                     console.log(err);
@@ -202,9 +232,8 @@ const postFile = (req, res) => {
                 })
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
-                error: 'Failed to upload the file.'
+                error: 'Failed to read the key file.'
             })
         })
 };

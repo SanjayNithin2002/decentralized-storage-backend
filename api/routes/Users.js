@@ -3,6 +3,7 @@ const router = express.Router();
 
 const checkAuth = require('../middlewares/utilities/checkAuth');
 const userControllers = require('../controllers/Users');
+const uploadFile = require('../../firebase/utilities/uploadFile');
 
 router.get('/', checkAuth, userControllers.getAll);
 router.get('/dept/:dept', checkAuth, userControllers.getByDepartment);

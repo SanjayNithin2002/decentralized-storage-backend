@@ -1,5 +1,6 @@
 // Import packages
 const { randomUUID } = require('crypto');
+const fs = require('fs');
 
 // Import Middlewares
 const fetchAPI = require('../../kaleido/fetchAPI');
@@ -50,9 +51,12 @@ const getById = (req, res) => {
 };
 
 const getSecretKey = (req, res) => {
-    res.status(200).json({
-        secret_key: generateSecretKey()
-    })
+    const secretKey = generateSecretKey();
+    const filename = 'secret.key';
+    fs.writeFileSync(filename, secretKey);
+    res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+    res.setHeader('Content-type', 'application/octet-stream');
+    res.status(200).send(fs.readFileSync(filename));
 }
 
 const login = (req, res) => {
@@ -125,4 +129,4 @@ const signup = (req, res) => {
         });
 }
 
-module.exports = {getAll, getById, getSecretKey, login, signup}
+module.exports = { getAll, getById, getSecretKey, login, signup }

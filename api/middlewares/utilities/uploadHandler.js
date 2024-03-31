@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
 
 const fileFilter = (req, file, cb) => {
     //accept
-    if (file.mimetype === 'application/pdf') {
+    if (file.mimetype === 'application/pdf' || file.mimetype === 'application/x-pem-file') {
         cb(null, true);
     }
     //reject
@@ -26,7 +26,7 @@ const uploadHandler = multer({
     limits: {
         fileSize: 1024 * 1024 * 10
     },
-    fileFilter: fileFilter
+    //fileFilter: fileFilter
 });
 
 module.exports = uploadHandler;
