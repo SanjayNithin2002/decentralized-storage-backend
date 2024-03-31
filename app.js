@@ -10,10 +10,19 @@ const userRoutes = require('./api/routes/Users');
 const fileRoutes = require('./api/routes/Files');
 const dataOwnerRoutes = require('./api/routes/DataOwners');
 const clearDirectory = require('./api/middlewares/utilities/clearDirectory');
+const fetchAPI = require('./kaleido/fetchAPI');
 
 // Middlewares
 const job = schedule.scheduleJob('*/5 * * * *', () => {
-    clearDirectory('./uploads')
+    clearDirectory('./uploads');
+    const apiContent = {
+        method: 'GET',
+        instance: 'DATA_OWNER',
+        func: 'getAllDataOwners'
+    }
+    fetchAPI(apiContent)
+    .then(data => console.log('Pinging Blockchain Server'))
+    .catch(err => console.log(err));
 });
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
