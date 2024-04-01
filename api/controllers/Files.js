@@ -156,148 +156,162 @@ const verifyIntegrity = (req, res) => {
 };
 
 const postFile = (req, res) => {
-    const uploadedFile = req.files.file[0];
-    const keyFile = req.files.key[0];
-    console.log(keyFile);
-    readFile(keyFile.path)
-        .then(key => {
-            console.log(`Read key file: ${key}`);
-            constructMerkleTree(uploadedFile.path)
-                .then(merkleRoot => {
-                    console.log(`Merkle Root constructed: ${merkleRoot}`);
-                    encryptFile(uploadedFile.path, key)
-                        .then(results => {
-                            console.log('Encrypted file.');
-                            uploadFile(uploadedFile.path)
-                                .then(results => {
-                                    console.log('Uploaded file to cloud.')
-                                    const apiContent = {
-                                        method: 'POST',
-                                        instance: 'FILE',
-                                        func: 'createFile',
-                                        body: {
-                                            _id: randomUUID(),
-                                            _title: req.body.title,
-                                            _filepath: uploadedFile.path,
-                                            _uploadedAt: new Date().toLocaleString(),
-                                            _mimetype: uploadedFile.mimetype,
-                                            _originalName: uploadedFile.originalname,
-                                            _size: convertBytes(uploadedFile.size),
-                                            _merkleRoot: merkleRoot,
-                                            _department: req.body.department,
-                                            _role: req.body.role
-                                        }
-                                    }
-                                    fetchAPI(apiContent)
-                                        .then(results => {
-                                            console.log('Added file metadata to blockchain.');
-                                            console.log(results);
-                                            if (results.sent) {
-                                                res.status(201).json({
-                                                    message: 'File Uploaded Successfuly'
-                                                });
-                                            }
-                                            else {
-                                                res.status(400).json({
-                                                    error: 'Bad Request. Check Again'
-                                                });
-                                            }
-                                        })
-                                        .catch(err => {
-                                            console.log(err);
-                                            res.status(500).json({
-                                                error: 'Failed to upload the file.'
-                                            })
-                                        })
-                                })
-                                .catch(err => {
-                                    console.log(err);
-                                    res.status(500).json({
-                                        error: 'Failed to upload the file.'
-                                    })
-                                })
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            res.status(500).json({
-                                error: 'Failed to upload the file.'
-                            })
-                        })
-                })
-                .catch(err => {
-                    console.log(err);
-                    res.status(500).json({
-                        error: 'Failed to upload the file.'
-                    })
-                })
-        })
-        .catch(err => {
-            res.status(500).json({
-                error: 'Failed to read the key file.'
-            })
-        })
-};
-
-const deleteById = (req, res) => {
-    const apiContent = {
-        method: 'GET',
-        instance: 'FILE',
-        func: 'getFileById',
-        params: {
-            _id: req.params.id
-        }
-    }
-    fetchAPI(apiContent)
-        .then(results => {
-            if (results?.output) {
-                const file = results.output;
-                deleteFile(file.filepath)
-                    .then(results => {
-                        const apiContent = {
-                            method: 'POST',
-                            instance: 'FILE',
-                            func: 'deleteFile',
-                            body: {
-                                _id: req.params.id
-                            }
-                        }
-                        fetchAPI(apiContent)
+    if (req.userData.type === 'Data Owner') {
+        const uploadedFile = req.files.file[0];
+        const keyFile = req.files.key[0];
+        console.log(keyFile);
+        readFile(keyFile.path)
+            .then(key => {
+                console.log(`Read key file: ${key}`);
+                constructMerkleTree(uploadedFile.path)
+                    .then(merkleRoot => {
+                        console.log(`Merkle Root constructed: ${merkleRoot}`);
+                        encryptFile(uploadedFile.path, key)
                             .then(results => {
-                                if (results.sent) {
-                                    res.status(200).json({
-                                        message: 'Deletion Successful'
+                                console.log('Encrypted file.');
+                                uploadFile(uploadedFile.path)
+                                    .then(results => {
+                                        console.log('Uploaded file to cloud.')
+                                        const apiContent = {
+                                            method: 'POST',
+                                            instance: 'FILE',
+                                            func: 'createFile',
+                                            body: {
+                                                _id: randomUUID(),
+                                                _title: req.body.title,
+                                                _filepath: uploadedFile.path,
+                                                _uploadedAt: new Date().toLocaleString(),
+                                                _mimetype: uploadedFile.mimetype,
+                                                _originalName: uploadedFile.originalname,
+                                                _size: convertBytes(uploadedFile.size),
+                                                _merkleRoot: merkleRoot,
+                                                _department: req.body.department,
+                                                _role: req.body.role
+                                            }
+                                        }
+                                        fetchAPI(apiContent)
+                                            .then(results => {
+                                                console.log('Added file metadata to blockchain.');
+                                                console.log(results);
+                                                if (results.sent) {
+                                                    res.status(201).json({
+                                                        message: 'File Uploaded Successfuly'
+                                                    });
+                                                }
+                                                else {
+                                                    res.status(400).json({
+                                                        error: 'Bad Request. Check Again'
+                                                    });
+                                                }
+                                            })
+                                            .catch(err => {
+                                                console.log(err);
+                                                res.status(500).json({
+                                                    error: 'Failed to upload the file.'
+                                                })
+                                            })
                                     })
-                                }
-                                else {
-                                    res.status(500).json({
-                                        error: 'Failed to delete the file.'
+                                    .catch(err => {
+                                        console.log(err);
+                                        res.status(500).json({
+                                            error: 'Failed to upload the file.'
+                                        })
                                     })
-                                }
                             })
                             .catch(err => {
+                                console.log(err);
                                 res.status(500).json({
-                                    error: 'Failed to delete the file.'
+                                    error: 'Failed to upload the file.'
                                 })
                             })
                     })
                     .catch(err => {
+                        console.log(err);
                         res.status(500).json({
-                            error: 'Failed to delete the file.'
+                            error: 'Failed to upload the file.'
                         })
                     })
-            }
-            else {
-                res.status(404).json({
-                    error: 'File Not Found'
-                })
-
-            }
-        })
-        .catch(err => {
-            res.status(500).json({
-                error: 'Failed to delete the file.'
             })
+            .catch(err => {
+                res.status(500).json({
+                    error: 'Failed to read the key file.'
+                })
+            })
+    }
+    else {
+        res.status(401).json({
+            error: 'You are unauthorized to perform this request.'
         })
+    }
+};
+
+const deleteById = (req, res) => {
+    if (req.userData.type === 'Data Owner') {
+        const apiContent = {
+            method: 'GET',
+            instance: 'FILE',
+            func: 'getFileById',
+            params: {
+                _id: req.params.id
+            }
+        }
+        fetchAPI(apiContent)
+            .then(results => {
+                if (results?.output) {
+                    const file = results.output;
+                    deleteFile(file.filepath)
+                        .then(results => {
+                            const apiContent = {
+                                method: 'POST',
+                                instance: 'FILE',
+                                func: 'deleteFile',
+                                body: {
+                                    _id: req.params.id
+                                }
+                            }
+                            fetchAPI(apiContent)
+                                .then(results => {
+                                    if (results.sent) {
+                                        res.status(200).json({
+                                            message: 'Deletion Successful'
+                                        })
+                                    }
+                                    else {
+                                        res.status(500).json({
+                                            error: 'Failed to delete the file.'
+                                        })
+                                    }
+                                })
+                                .catch(err => {
+                                    res.status(500).json({
+                                        error: 'Failed to delete the file.'
+                                    })
+                                })
+                        })
+                        .catch(err => {
+                            res.status(500).json({
+                                error: 'Failed to delete the file.'
+                            })
+                        })
+                }
+                else {
+                    res.status(404).json({
+                        error: 'File Not Found'
+                    })
+
+                }
+            })
+            .catch(err => {
+                res.status(500).json({
+                    error: 'Failed to delete the file.'
+                })
+            })
+    }
+    else {
+        res.status(401).json({
+            error: 'You are unauthorized to perform this request.'
+        })
+    }
 };
 
 module.exports = { getFilesByDepartment, getById, verifyIntegrity, postFile, deleteById };

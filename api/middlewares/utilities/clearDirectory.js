@@ -9,7 +9,7 @@ const clearDirectory = (directory) => {
         }
 
         const now = Date.now();
-        const fiveMinutesAgo = now - (5 * 60 * 1000);
+        const fiveMinutesAgo = now - (15 * 60 * 1000);
 
         files.forEach(file => {
             const filePath = path.join(directory, file);

@@ -96,7 +96,7 @@ const getSecretKey = async (req, res) => {
     }
     else {
         res.status(401).json({
-            error: 'You are unauthorized to execute this request.'
+            error: 'You are unauthorized to perform this request.'
         })
     }
 }
@@ -118,7 +118,7 @@ const clearKeys = async (req, res) => {
     }
     else {
         res.status(401).json({
-            error: 'You are unauthorized to execute this request.'
+            error: 'You are unauthorized to perform this request.'
         })
     }
 }

@@ -20,7 +20,8 @@ const constructMerkleTree = async (filepath) => {
             const fileData = readFile(filepath);
             const leaves = splitFileIntoChunks(fileData);
             const tree = new MerkleTree(leaves, sha256);
-            resolve(tree.getRoot().toString('hex'));
+            const root = tree.getRoot().toString('hex');
+            resolve(root);
         } catch (err) {
             reject(err);
         }
