@@ -162,7 +162,7 @@ const postFile = (req, res) => {
         console.log(keyFile);
         readFile(keyFile.path)
             .then(key => {
-                console.log(`Read key file: ${key}`);
+                console.log(`Read key file`);
                 constructMerkleTree(uploadedFile.path)
                     .then(merkleRoot => {
                         console.log(`Merkle Root constructed: ${merkleRoot}`);
