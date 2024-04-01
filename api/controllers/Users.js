@@ -170,61 +170,75 @@ const signup = (req, res) => {
 };
 
 const approveById = (req, res) => {
-    const apiContent = {
-        method: 'POST',
-        instance: 'USER',
-        func: 'approveUser',
-        body: {
-            _id: req.params.id
-        }
-    }
-    fetchAPI(apiContent)
-        .then(results => {
-            if (results.sent) {
-                res.status(200).json({
-                    message: 'User Approved Successfuly'
-                });
+    if (req.userData.type === 'Data Owner') {
+        const apiContent = {
+            method: 'POST',
+            instance: 'USER',
+            func: 'approveUser',
+            body: {
+                _id: req.params.id
             }
-            else {
+        }
+        fetchAPI(apiContent)
+            .then(results => {
+                if (results.sent) {
+                    res.status(200).json({
+                        message: 'User Approved Successfuly'
+                    });
+                }
+                else {
+                    res.status(500).json({
+                        error: 'Failed to approve the user.'
+                    })
+                }
+            })
+            .catch(err => {
                 res.status(500).json({
                     error: 'Failed to approve the user.'
                 })
-            }
-        })
-        .catch(err => {
-            res.status(500).json({
-                error: 'Failed to approve the user.'
             })
+    }
+    else {
+        res.status(401).json({
+            error: 'You are unauthorized to execute this request.'
         })
+    }
 }
 
 const deleteById = (req, res) => {
-    const apiContent = {
-        method: 'POST',
-        instance: 'USER',
-        func: 'deleteUser',
-        body: {
-            _id: req.params.id
-        }
-    }
-    fetchAPI(apiContent)
-        .then(results => {
-            if (results.sent) {
-                res.status(200).json({
-                    message: 'User Deleted Successfuly'
-                });
+    if (req.userData.type === 'Data Owner') {
+        const apiContent = {
+            method: 'POST',
+            instance: 'USER',
+            func: 'deleteUser',
+            body: {
+                _id: req.params.id
             }
-            else {
+        }
+        fetchAPI(apiContent)
+            .then(results => {
+                if (results.sent) {
+                    res.status(200).json({
+                        message: 'User Deleted Successfuly'
+                    });
+                }
+                else {
+                    res.status(500).json({
+                        error: 'Failed to delete the user.'
+                    })
+                }
+            })
+            .catch(err => {
                 res.status(500).json({
                     error: 'Failed to delete the user.'
                 })
-            }
-        })
-        .catch(err => {
-            res.status(500).json({
-                error: 'Failed to delete the user.'
             })
+    }
+    else {
+        res.status(401).json({
+            error: 'You are unauthorized to execute this request.'
         })
+    }
 };
 
 module.exports = { getAll, getById, getByDepartment, getSecretKey, login, signup, approveById, deleteById };
