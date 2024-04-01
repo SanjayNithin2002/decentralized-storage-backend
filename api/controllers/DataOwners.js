@@ -177,7 +177,7 @@ const signup = (req, res) => {
         .then(results => {
             if (results.sent) {
                 res.status(201).json({
-                    message: 'Data Owner Successfuly Created'
+                    message: 'Transaction executed successfuly. Try Login.'
                 });
             }
             else {
