@@ -5,7 +5,6 @@ const checkAuth = require('../middlewares/utilities/checkAuth');
 const userControllers = require('../controllers/Users');
 const uploadFile = require('../../firebase/utilities/uploadFile');
 
-router.get('/', checkAuth, userControllers.getAll);
 router.get('/secretkeys', checkAuth, userControllers.getSecretKey);
 router.get('/dept/:dept', checkAuth, userControllers.getByDepartment);
 router.get('/:id', checkAuth, userControllers.getById);

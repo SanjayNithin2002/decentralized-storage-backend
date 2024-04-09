@@ -15,14 +15,6 @@ const fetchAPI = require('./kaleido/fetchAPI');
 // Middlewares
 const job = schedule.scheduleJob('*/5 * * * *', () => {
     clearDirectory('./uploads');
-    const apiContent = {
-        method: 'GET',
-        instance: 'DATA_OWNER',
-        func: 'getAllDataOwners'
-    }
-    fetchAPI(apiContent)
-    .then(data => console.log('Pinging Blockchain Server'))
-    .catch(err => console.log(err));
 });
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));

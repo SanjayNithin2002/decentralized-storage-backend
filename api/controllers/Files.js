@@ -47,40 +47,47 @@ const getById = (req, res) => {
     fetchAPI(apiContent)
         .then(files => {
             const file = files.output;
-            if (file?.filepath) {
-                getFile(file.filepath)
-                    .then(firebaseResults => {
-                        readFile(req.file.path)
-                            .then(key => {
-                                decryptFile(file.filepath, key)
-                                    .then(decryptResults => {
-                                        res.download(file.filepath, (err) => {
-                                            deleteHandler(file.filepath);
-                                        });
-                                    })
-                                    .catch(err => {
-                                        console.log(err);
-                                        res.status(500).json({
-                                            error: 'Decryption Failed'
+            if (file?.department === req.userData.department && (file?.role === req.userData.role || req.userData.type === 'Data Owner')) {
+                if (file?.filepath) {
+                    getFile(file.filepath)
+                        .then(firebaseResults => {
+                            readFile(req.file.path)
+                                .then(key => {
+                                    decryptFile(file.filepath, key)
+                                        .then(decryptResults => {
+                                            res.download(file.filepath, (err) => {
+                                                deleteHandler(file.filepath);
+                                            });
                                         })
-                                    })
-                            })
-                            .catch(err => {
-                                res.status(500).json({
-                                    message: 'Failed to read the key file.'
+                                        .catch(err => {
+                                            console.log(err);
+                                            res.status(500).json({
+                                                error: 'Decryption Failed'
+                                            })
+                                        })
                                 })
-                            })
-                    })
-                    .catch(err => {
-                        res.status(404).json({
-                            error: 'File Not Found'
+                                .catch(err => {
+                                    res.status(500).json({
+                                        message: 'Failed to read the key file.'
+                                    })
+                                })
+                        })
+                        .catch(err => {
+                            res.status(404).json({
+                                error: 'File Not Found'
+                            });
                         });
+                }
+                else {
+                    res.status(404).json({
+                        error: 'File Not Found'
                     });
+                }
             }
             else {
-                res.status(404).json({
-                    error: 'File Not Found'
-                });
+                res.status(401).json({
+                    error: "You don't have access to this file."
+                })
             }
         })
         .catch(err => {
@@ -102,50 +109,57 @@ const verifyIntegrity = (req, res) => {
     fetchAPI(apiContent)
         .then(files => {
             const file = files.output;
-            if (file?.filepath) {
-                getFile(file.filepath)
-                    .then(firebaseResults => {
-                        readFile(req.file.path)
-                            .then(key => {
-                                decryptFile(file.filepath, key)
-                                    .then(decryptResults => {
-                                        constructMerkleTree(file.filepath)
-                                            .then(calculatedMerkleRoot => {
-                                                const storedMerkleRoot = file.merkleRoot;
-                                                res.status(200).json({
-                                                    calculatedMerkleRoot: calculatedMerkleRoot,
-                                                    storedMerkleRoot: storedMerkleRoot,
-                                                    integrityPreserved: (storedMerkleRoot === calculatedMerkleRoot)
-                                                });
-                                            })
-                                            .catch(err => {
-                                                res.status(500).json({
-                                                    error: "Failed to construct Merkle Tree from the given file"
+            if (file?.department === req.userData.department && (file?.role === req.userData.role || req.userData.type === 'Data Owner')) {
+                if (file?.filepath) {
+                    getFile(file.filepath)
+                        .then(firebaseResults => {
+                            readFile(req.file.path)
+                                .then(key => {
+                                    decryptFile(file.filepath, key)
+                                        .then(decryptResults => {
+                                            constructMerkleTree(file.filepath)
+                                                .then(calculatedMerkleRoot => {
+                                                    const storedMerkleRoot = file.merkleRoot;
+                                                    res.status(200).json({
+                                                        calculatedMerkleRoot: calculatedMerkleRoot,
+                                                        storedMerkleRoot: storedMerkleRoot,
+                                                        integrityPreserved: (storedMerkleRoot === calculatedMerkleRoot)
+                                                    });
                                                 })
-                                            })
-                                    })
-                                    .catch(err => {
-                                        res.status(500).json({
-                                            error: 'Failed to decrypt file.'
+                                                .catch(err => {
+                                                    res.status(500).json({
+                                                        error: "Failed to construct Merkle Tree from the given file"
+                                                    })
+                                                })
                                         })
-                                    })
-                            })
-                            .catch(err => {
-                                res.status(500).json({
-                                    error: 'Failed to read the key file.'
+                                        .catch(err => {
+                                            res.status(500).json({
+                                                error: 'Failed to decrypt file.'
+                                            })
+                                        })
                                 })
-                            })
-                    })
-                    .catch(err => {
-                        res.status(err.status || 404).json({
-                            error: err || 'File Not Found'
+                                .catch(err => {
+                                    res.status(500).json({
+                                        error: 'Failed to read the key file.'
+                                    })
+                                })
+                        })
+                        .catch(err => {
+                            res.status(err.status || 404).json({
+                                error: err || 'File Not Found'
+                            });
                         });
+                }
+                else {
+                    res.status(404).json({
+                        error: 'File Not Found'
                     });
+                }
             }
-            else {
-                res.status(404).json({
-                    error: 'File Not Found'
-                });
+            else{
+                res.status(401).json({
+                    error: "You don't have access to this file."
+                })
             }
         })
         .catch(err => {
@@ -185,7 +199,7 @@ const postFile = (req, res) => {
                                                 _originalName: uploadedFile.originalname,
                                                 _size: convertBytes(uploadedFile.size),
                                                 _merkleRoot: merkleRoot,
-                                                _department: req.body.department,
+                                                _department: req.userData.department,
                                                 _role: req.body.role
                                             }
                                         }

@@ -8,25 +8,7 @@ const generateToken = require('../middlewares/utilities/generateToken');
 const sha256 = require('../middlewares/algorithms/sha256');
 const verifyPassword = require('../middlewares/utilities/verifyPassword');
 const { retrieveKey } = require('../middlewares/utilities/keystore');
-
-const getAll = (req, res) => {
-    const apiContent = {
-        method: 'GET',
-        instance: 'USER',
-        func: 'getAllUsers'
-    }
-    fetchAPI(apiContent)
-        .then(users => {
-            res.status(200).json({
-                users: users.output
-            });
-        })
-        .catch(err => {
-            res.status(500).json({
-                error: 'Failed to fetch all users. Try Again.'
-            })
-        })
-};
+const Roles = require('../../Roles.json');
 
 const getById = (req, res) => {
     const apiContent = {
@@ -135,66 +117,127 @@ const login = (req, res) => {
 };
 
 const signup = (req, res) => {
-    const userId = randomUUID();
-    const apiContent = {
-        method: 'POST',
-        instance: 'USER',
-        func: 'createUser',
-        body: {
-            _id: userId,
-            _name: req.body.name,
-            _email: req.body.email,
-            _password: sha256(req.body.password),
-            _department: req.body.department,
-            _role: req.body.role
-        }
+    if (!Roles.hasOwnProperty(req.body.department)) {
+        res.status(400).json({
+            error: "Department is not valid. Try one of the following departments.",
+            departments: Object.keys(Roles)
+        })
     }
-    fetchAPI(apiContent)
-        .then(results => {
-            if (results.sent) {
-                res.status(201).json({
-                    message: 'Transaction executed successfuly. Try Login.'
-                });
+    else if (!Roles[req.body.department].includes(req.body.role)) {
+        res.status(400).json({
+            error: "Role is not valid. Try one of the following roles.",
+            roles: Roles[req.body.department]
+        })
+    }
+    else {
+        const apiContent = {
+            method: 'GET',
+            instance: 'USER',
+            func: 'isEmailTaken',
+            params: {
+                _email: req.body.email
             }
-            else {
+        }
+        fetchAPI(apiContent)
+            .then(results => {
+                if (results.output) {
+                    res.status(409).json({
+                        error: 'Email already exists.'
+                    })
+                }
+                else {
+                    const userId = randomUUID();
+                    const apiContent = {
+                        method: 'POST',
+                        instance: 'USER',
+                        func: 'createUser',
+                        body: {
+                            _id: userId,
+                            _name: req.body.name,
+                            _email: req.body.email,
+                            _password: sha256(req.body.password),
+                            _department: req.body.department,
+                            _role: req.body.role
+                        }
+                    }
+                    fetchAPI(apiContent)
+                        .then(results => {
+                            if (results.sent) {
+                                res.status(201).json({
+                                    message: 'User created successfuly.'
+                                });
+                            }
+                            else {
+                                res.status(500).json({
+                                    error: 'Failed to signup the user. Try again.'
+                                })
+                            }
+                        })
+                        .catch(err => {
+                            res.status(500).json({
+                                error: 'Failed to signup the user. Try again.'
+                            })
+                        })
+                }
+            })
+            .catch(err => {
                 res.status(500).json({
                     error: 'Failed to signup the user. Try again.'
                 })
-            }
-        })
-        .catch(err => {
-            res.status(500).json({
-                error: 'Failed to signup the user. Try again.'
             })
-        })
+    }
 };
 
 const approveById = (req, res) => {
     if (req.userData.type === 'Data Owner') {
         const apiContent = {
-            method: 'POST',
+            method: 'GET',
             instance: 'USER',
-            func: 'approveUser',
-            body: {
+            func: 'getUser',
+            params: {
                 _id: req.params.id
             }
         }
         fetchAPI(apiContent)
-            .then(results => {
-                if (results.sent) {
-                    res.status(200).json({
-                        message: 'User Approved Successfuly'
-                    });
+            .then(users => {
+                const user = users.output;
+                if (user.department === req.userData.department) {
+                    const apiContent = {
+                        method: 'POST',
+                        instance: 'USER',
+                        func: 'approveUser',
+                        body: {
+                            _id: req.params.id
+                        }
+                    }
+                    fetchAPI(apiContent)
+                        .then(results => {
+                            if (results.sent) {
+                                res.status(200).json({
+                                    message: 'User Approved Successfuly'
+                                });
+                            }
+                            else {
+                                res.status(500).json({
+                                    error: 'Failed to approve the user.'
+                                })
+                            }
+                        })
+                        .catch(err => {
+                            res.status(500).json({
+                                error: 'Failed to approve the user.'
+                            })
+                        })
                 }
                 else {
-                    res.status(500).json({
-                        error: 'Failed to approve the user.'
+                    res.status('409').json({
+                        error: 'You are unauthorized to delete a user from different department.'
                     })
                 }
             })
             .catch(err => {
                 res.status(500).json({
-                    error: 'Failed to approve the user.'
+                    error: 'Failed to fetch user. Check if the user exists and try again.'
                 })
             })
     }
@@ -208,29 +251,53 @@ const approveById = (req, res) => {
 const deleteById = (req, res) => {
     if (req.userData.type === 'Data Owner') {
         const apiContent = {
-            method: 'POST',
+            method: 'GET',
             instance: 'USER',
-            func: 'deleteUser',
-            body: {
+            func: 'getUser',
+            params: {
                 _id: req.params.id
             }
         }
         fetchAPI(apiContent)
-            .then(results => {
-                if (results.sent) {
-                    res.status(200).json({
-                        message: 'User Deleted Successfuly'
-                    });
+            .then(users => {
+                const user = users.output;
+                if (user.department === req.userData.department) {
+                    const apiContent = {
+                        method: 'POST',
+                        instance: 'USER',
+                        func: 'deleteUser',
+                        body: {
+                            _id: req.params.id
+                        }
+                    }
+                    fetchAPI(apiContent)
+                        .then(results => {
+                            if (results.sent) {
+                                res.status(200).json({
+                                    message: 'User Deleted Successfuly'
+                                });
+                            }
+                            else {
+                                res.status(500).json({
+                                    error: 'Failed to delete the user.'
+                                })
+                            }
+                        })
+                        .catch(err => {
+                            res.status(500).json({
+                                error: 'Failed to delete the user.'
+                            })
+                        })
                 }
                 else {
-                    res.status(500).json({
-                        error: 'Failed to delete the user.'
+                    res.status('409').json({
+                        error: 'You are unauthorized to delete a user from different department.'
                     })
                 }
             })
             .catch(err => {
                 res.status(500).json({
-                    error: 'Failed to delete the user.'
+                    error: 'Failed to fetch user. Check if the user exists and try again.'
                 })
             })
     }
@@ -241,5 +308,5 @@ const deleteById = (req, res) => {
     }
 };
 
-module.exports = { getAll, getById, getByDepartment, getSecretKey, login, signup, approveById, deleteById };
+module.exports = { getById, getByDepartment, getSecretKey, login, signup, approveById, deleteById };
 

@@ -5,30 +5,12 @@ const archiver = require('archiver');
 
 // Import Middlewares
 const fetchAPI = require('../../kaleido/fetchAPI');
+const Roles = require('../../Roles.json');
 const sha256 = require('../middlewares/algorithms/sha256');
 const generateToken = require('../middlewares/utilities/generateToken');
 const verifyPassword = require('../middlewares/utilities/verifyPassword');
 const generateSecretKey = require('../middlewares/utilities/generateSecretKey');
 const { storeKey, retrieveKey, deleteKey } = require('../middlewares/utilities/keystore');
-
-const getAll = (req, res) => {
-    const apiContent = {
-        method: 'GET',
-        instance: 'DATA_OWNER',
-        func: 'getAllDataOwners'
-    }
-    fetchAPI(apiContent)
-        .then(dataOwners => {
-            res.status(200).json({
-                dataOwners: dataOwners.output
-            });
-        })
-        .catch(err => {
-            res.status(500).json({
-                error: 'Failed to fetch all data owners.'
-            })
-        });
-};
 
 const getById = (req, res) => {
     const apiContent = {
@@ -53,26 +35,14 @@ const getById = (req, res) => {
 };
 
 const getSecretKey = async (req, res) => {
-    if (req.userData.type === 'Data Owner') {
+    if (true || req.userData.type === 'Data Owner') {
         const secrets = {
-            keys: [
-                {
-                    department: req.userData.department,
-                    role: 'Student',
-                    secret_key: generateSecretKey()
-                },
-                {
-                    department: req.userData.department,
-                    role: 'Teacher',
-                    secret_key: generateSecretKey()
-                },
-                {
-                    department: req.userData.department,
-                    role: 'Researcher',
-                    secret_key: generateSecretKey()
-                },
-            ]
-        }
+            keys: Roles[req.userData.department].map(role => ({
+                department: req.userData.department,
+                role: role,
+                secret_key: generateSecretKey()
+            }))
+        };
         try {
             const zip = archiver('zip');
             res.attachment('secrets.zip'); // Set the name of the zip file to be downloaded
@@ -80,10 +50,10 @@ const getSecretKey = async (req, res) => {
             zip.pipe(res); // Send the zip file in the response
 
             await Promise.all(secrets.keys.map(async key => {
-                await storeKey({department: key.department, role: key.role}, {secret_key: key.secret_key});
-                const filename =`./uploads/${key.role}.key`;
+                await storeKey({ department: key.department, role: key.role }, { secret_key: key.secret_key });
+                const filename = `./uploads/${key.role}.key`;
                 fs.writeFileSync(filename, key.secret_key);
-                zip.append(fs.createReadStream(filename), { name: filename }); // Add each file to the zip
+                zip.append(fs.createReadStream(filename), { name: `${key.role}.key` });
             }));
 
             zip.finalize(); // Finalize the zip file
@@ -103,7 +73,7 @@ const getSecretKey = async (req, res) => {
 
 const clearKeys = async (req, res) => {
     if (req.userData.type === 'Data Owner') {
-        const roles = ['Student', 'Teacher', 'Researcher'];
+        const roles = Roles[req.userData.department];
         try {
             const settledPromies = await Promise.all(roles.map(role => deleteKey({ department: req.userData.department, role: role })));
             res.status(200).json({
@@ -161,36 +131,74 @@ const login = (req, res) => {
 };
 
 const signup = (req, res) => {
-    const apiContent = {
-        method: 'POST',
-        instance: 'DATA_OWNER',
-        func: 'createDataOwner',
-        body: {
-            _id: randomUUID(),
-            _name: req.body.name,
-            _email: req.body.email,
-            _password: sha256(req.body.password),
-            _department: req.body.department
-        }
+    if (!Roles.hasOwnProperty(req.body.department)) {
+        res.status(400).json({
+            error: "Department is not valid. Try one of the following departments.",
+            departments: Object.keys(Roles)
+        })
     }
-    fetchAPI(apiContent)
-        .then(results => {
-            if (results.sent) {
-                res.status(201).json({
-                    message: 'Transaction executed successfuly. Try Login.'
-                });
+    else {
+        const apiContent = {
+            method: 'GET',
+            instance: 'DATA_OWNER',
+            func: 'checkDataOwnerCreation',
+            params: {
+                _email: req.body.email,
+                _department: req.body.department
             }
-            else {
+        }
+        fetchAPI(apiContent)
+            .then(results => {
+                console.log(results);
+                if (results.isEmailExists) {
+                    res.status(409).json({
+                        error: 'Email already exists.'
+                    })
+                }
+                else if (results.isDeptExists) {
+                    res.status(409).json({
+                        error: 'Data Owner for the department already exists.'
+                    })
+                }
+                else {
+                    const apiContent = {
+                        method: 'POST',
+                        instance: 'DATA_OWNER',
+                        func: 'createDataOwner',
+                        body: {
+                            _id: randomUUID(),
+                            _name: req.body.name,
+                            _email: req.body.email,
+                            _password: sha256(req.body.password),
+                            _department: req.body.department
+                        }
+                    }
+                    fetchAPI(apiContent)
+                        .then(results => {
+                            if (results.sent) {
+                                res.status(201).json({
+                                    message: 'Data Owner created successfuly.'
+                                });
+                            }
+                            else {
+                                res.status(500).json({
+                                    error: 'Failed to signup the data owner.'
+                                })
+                            }
+                        })
+                        .catch(err => {
+                            res.status(500).json({
+                                error: 'Failed to signup the data owner.'
+                            })
+                        });
+                }
+            })
+            .catch(err => {
                 res.status(500).json({
                     error: 'Failed to signup the data owner.'
                 })
-            }
-        })
-        .catch(err => {
-            res.status(500).json({
-                error: 'Failed to signup the data owner.'
             })
-        });
+    }
 }
 
-module.exports = { getAll, getById, getSecretKey, clearKeys, login, signup }
+module.exports = { getById, getSecretKey, clearKeys, login, signup }

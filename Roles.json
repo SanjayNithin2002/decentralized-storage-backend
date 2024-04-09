@@ -1,0 +1,27 @@
+{
+    "HR": [
+        "HR_Manager",
+        "Recruiter",
+        "HR_Assistant"
+    ],
+    "Finance": [
+        "Finance_Manager",
+        "Accountant",
+        "Financial_Analyst"
+    ],
+    "Marketing": [
+        "Marketing_Manager",
+        "Marketing_Coordinator",
+        "Social_Media_Specialist"
+    ],
+    "IT": [
+        "IT_Manager",
+        "Software_Developer",
+        "Systems_Administrator"
+    ],
+    "Operations": [
+        "Operations_Manager",
+        "Logistics_Coordinator",
+        "Quality_Assurance_Specialist"
+    ]
+}
