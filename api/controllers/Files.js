@@ -8,7 +8,6 @@ const uploadFile = require('../../firebase/utilities/uploadFile');
 const getFile = require('../../firebase/utilities/getFile');
 const deleteHandler = require('../middlewares/utilities/deleteHandler');
 const { encryptFile, decryptFile } = require('../middlewares/utilities/fileCryptoUtils');
-const deriveKeyBasedOnRole = require('../middlewares/utilities/deriveKeyBasedOnRole');
 const { constructMerkleTree } = require('../middlewares/algorithms/merkleRoot');
 const readFile = require('../middlewares/utilities/readFile');
 
