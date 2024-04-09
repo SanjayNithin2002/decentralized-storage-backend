@@ -132,3 +132,4 @@ dist
 connection-org1.json
 firebase-config.json
 .node-persist
+nodemon.json
