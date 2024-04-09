@@ -4,15 +4,12 @@ const deleteHandler = (filepath) => {
     return new Promise((resolve, reject) => {
         fs.unlink(filepath, (err) => {
             if (err) {
-                reject({
-                    error: `Error deleting file: ${filepath}. Error: ${err}`,
-                    status: err.code
-                });
+                console.log(err);
+                console.log(`Error deleting file: ${filepath}. Error: ${err}`);
+                reject(`Error deleting file: ${filepath}. Error: ${err}`);
             } else {
-                resolve({
-                    message: `File: ${filepath} deleted.`,
-                    status: 200
-                });
+                console.log(`File: ${filepath} deleted.`);
+                resolve(`File: ${filepath} deleted.`);
             }
         });
     });

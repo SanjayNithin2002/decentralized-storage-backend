@@ -5,34 +5,28 @@ const fetchPDF = (url, filepath) => {
         fetch(url)
             .then(response => {
                 if (!response.ok) {
-                    reject({
-                        error: "Failed to read pdf",
-                        status: response.status
-                    })
+                    console.log('Failed to read pdf from URL.');
+                    reject('Failed to read pdf from URL.');
                 }
                 return response.arrayBuffer();
             })
             .then(pdfBytes => {
                 fs.writeFile(filepath, Buffer.from(pdfBytes), (err, results) => {
                     if (err) {
-                        reject({
-                            error: err,
-                            status: err.status
-                        })
+                        console.log(err);
+                        console.log('Failed to write pdf in local storage.');
+                        reject('Failed to write pdf in local storage.');
                     }
                     else {
-                        resolve({
-                            message: `Downloaded Succesfuly at ${filepath}`,
-                            status: 200
-                        })
+                        console.log(`Downloaded Succesfuly at ${filepath}`);
+                        resolve(`Downloaded Succesfuly at ${filepath}`);
                     }
                 })
             })
             .catch(err => {
-                reject({
-                    error: err,
-                    status: err.status
-                })
+                console.log(err);
+                console.log('Failed to read pdf from URL.');
+                reject('Failed to read pdf from URL.');
             }
             );
     })

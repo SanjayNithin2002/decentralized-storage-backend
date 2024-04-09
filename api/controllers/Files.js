@@ -24,13 +24,16 @@ const getFilesByDepartment = (req, res) => {
     }
     fetchAPI(apiContent)
         .then(files => {
+            console.log(files);
             res.status(200).json({
                 files: files.output
             });
         })
         .catch(err => {
+            console.log(err);
+            console.log('Failed to fetch files.');
             res.status(500).json({
-                error: 'Failed to fetch files. Check department and try again.'
+                error: 'Failed to fetch files.'
             })
         })
 };
@@ -58,41 +61,52 @@ const getById = (req, res) => {
                                             res.download(file.filepath, (err) => {
                                                 deleteHandler(file.filepath);
                                             });
+                                            console.log('File sent Successfuly.');
                                         })
                                         .catch(err => {
                                             console.log(err);
+                                            console.log('Failed to decrypt the file.');
                                             res.status(500).json({
-                                                error: 'Decryption Failed'
+                                                error: 'Failed to decrypt the file.'
                                             })
                                         })
                                 })
                                 .catch(err => {
+                                    console.log(err);
+                                    console.log('Failed to read the key file.');
                                     res.status(500).json({
                                         message: 'Failed to read the key file.'
                                     })
                                 })
                         })
                         .catch(err => {
+                            console.log(err);
+                            console.log('File Not Found');
                             res.status(404).json({
                                 error: 'File Not Found'
                             });
                         });
                 }
                 else {
+                    console.log(err);
+                    console.log('File Not Found');
                     res.status(404).json({
                         error: 'File Not Found'
                     });
                 }
             }
             else {
+                console.log('Unauthorized access.');
                 res.status(401).json({
                     error: "You don't have access to this file."
                 })
             }
         })
         .catch(err => {
+            console.log(err);
+            console.log('Failed to fetch file.');
             res.status(500).json({
-                error: 'Failed to fetch file. Try again.'
+                error: 'Failed to fetch file.'
             })
         });
 };
@@ -120,6 +134,7 @@ const verifyIntegrity = (req, res) => {
                                             constructMerkleTree(file.filepath)
                                                 .then(calculatedMerkleRoot => {
                                                     const storedMerkleRoot = file.merkleRoot;
+                                                    console.log(`Verified Merkle Root. IntegrityPreserved: ${storedMerkleRoot === calculatedMerkleRoot}`);
                                                     res.status(200).json({
                                                         calculatedMerkleRoot: calculatedMerkleRoot,
                                                         storedMerkleRoot: storedMerkleRoot,
@@ -127,44 +142,57 @@ const verifyIntegrity = (req, res) => {
                                                     });
                                                 })
                                                 .catch(err => {
+                                                    console.log(err);
+                                                    console.log('Failed to construct Merkle Tree from the given file');
                                                     res.status(500).json({
-                                                        error: "Failed to construct Merkle Tree from the given file"
+                                                        error: 'Failed to construct Merkle Tree from the given file'
                                                     })
                                                 })
                                         })
                                         .catch(err => {
+                                            console.log(err);
+                                            console.log('Failed to decrypt the file.');
                                             res.status(500).json({
-                                                error: 'Failed to decrypt file.'
+                                                error: 'Failed to decrypt the file.'
                                             })
                                         })
                                 })
                                 .catch(err => {
+                                    console.log(err);
+                                    console.log('Failed to read the key file.');
                                     res.status(500).json({
                                         error: 'Failed to read the key file.'
                                     })
                                 })
                         })
                         .catch(err => {
-                            res.status(err.status || 404).json({
-                                error: err || 'File Not Found'
+                            console.log(err);
+                            console.log('File Not Found');
+                            res.status(404).json({
+                                error: 'File Not Found'
                             });
                         });
                 }
                 else {
+                    console.log(err);
+                    console.log('File Not Found');
                     res.status(404).json({
                         error: 'File Not Found'
                     });
                 }
             }
-            else{
+            else {
+                console.log('Unauthorized access.');
                 res.status(401).json({
                     error: "You don't have access to this file."
                 })
             }
         })
         .catch(err => {
+            console.log(err);
+            console.log('Failed to fetch file.');
             res.status(500).json({
-                error: 'Failed to fetch file. Try again.'
+                error: 'Failed to fetch file.'
             })
         });
 };
@@ -213,13 +241,15 @@ const postFile = (req, res) => {
                                                     });
                                                 }
                                                 else {
-                                                    res.status(400).json({
-                                                        error: 'Bad Request. Check Again'
+                                                    console.log('Failed to upload the file in the blockchain.');
+                                                    res.status(500).json({
+                                                        error: 'Failed to upload the file.'
                                                     });
                                                 }
                                             })
                                             .catch(err => {
                                                 console.log(err);
+                                                console.log('Failed to upload the file in the blockchain.');
                                                 res.status(500).json({
                                                     error: 'Failed to upload the file.'
                                                 })
@@ -227,6 +257,7 @@ const postFile = (req, res) => {
                                     })
                                     .catch(err => {
                                         console.log(err);
+                                        console.log('Failed to upload file to the cloud.');
                                         res.status(500).json({
                                             error: 'Failed to upload the file.'
                                         })
@@ -234,25 +265,30 @@ const postFile = (req, res) => {
                             })
                             .catch(err => {
                                 console.log(err);
+                                console.log('Failed to encrypt the file.');
                                 res.status(500).json({
-                                    error: 'Failed to upload the file.'
+                                    error: 'Failed to encrypt the file.'
                                 })
                             })
                     })
                     .catch(err => {
                         console.log(err);
+                        console.log('Failed to Merkle Tree for the file.');
                         res.status(500).json({
-                            error: 'Failed to upload the file.'
+                            error: 'Failed to Merkle Tree for the file.'
                         })
                     })
             })
             .catch(err => {
+                console.log(err);
+                console.log('Failed to read the key file.');
                 res.status(500).json({
                     error: 'Failed to read the key file.'
                 })
             })
     }
     else {
+        console.log(`Unauthorized access.`);
         res.status(401).json({
             error: 'You are unauthorized to perform this request.'
         })
@@ -286,29 +322,35 @@ const deleteById = (req, res) => {
                             fetchAPI(apiContent)
                                 .then(results => {
                                     if (results.sent) {
+                                        console.log('File deleted Successfully.');
                                         res.status(200).json({
-                                            message: 'Deletion Successful'
+                                            message: 'File deleted Successfully.'
                                         })
                                     }
                                     else {
+                                        console.log('Failed to delete the file record in the blockchain.');
                                         res.status(500).json({
                                             error: 'Failed to delete the file.'
                                         })
                                     }
                                 })
                                 .catch(err => {
+                                    console.log(err);
+                                    console.log('Failed to delete the file record in the blockchain.');
                                     res.status(500).json({
                                         error: 'Failed to delete the file.'
                                     })
                                 })
                         })
                         .catch(err => {
+                            console.log('Failed to delete the file record in the cloud.');
                             res.status(500).json({
                                 error: 'Failed to delete the file.'
                             })
                         })
                 }
                 else {
+                    console.log('File Not Found.')
                     res.status(404).json({
                         error: 'File Not Found'
                     })
@@ -316,12 +358,14 @@ const deleteById = (req, res) => {
                 }
             })
             .catch(err => {
+                console.log('Failed to fetch the file record from the blockchain.');
                 res.status(500).json({
-                    error: 'Failed to delete the file.'
+                    error: 'Failed to fetch the file record from the blockchain.'
                 })
             })
     }
     else {
+        console.log(`Unauthorized access.`);
         res.status(401).json({
             error: 'You are unauthorized to perform this request.'
         })

@@ -12,6 +12,7 @@ const storeKey = (keyObj, valueObj) => {
         .then(() => {
             const keyStr = JSON.stringify(keyObj);
             const valueStr = JSON.stringify(valueObj);
+            console.log('New key record added to keystore.');
             return storage.setItem(keyStr, valueStr);
         })
         .catch(error => {
@@ -27,6 +28,7 @@ const retrieveKey = (keyObj) => {
             return storage.getItem(keyStr);
         })
         .then(valueStr => {
+            console.log('Key retrieved from keystore.');
             return JSON.parse(valueStr);
         })
         .catch(error => {
@@ -38,6 +40,7 @@ const retrieveKey = (keyObj) => {
 const deleteKey = (keyObj) => {
     return initializeStorage()
         .then(() => {
+            console.log('Key deleted from keystore.')
             const keyStr = JSON.stringify(keyObj);
             return storage.removeItem(keyStr);
         })

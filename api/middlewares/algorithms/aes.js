@@ -46,6 +46,7 @@ const decryptAes = (cipherText, secret_key) => {
         try {
             return JSON.parse(decrypted);
         } catch (error) {
+            console.log(error);
             return decrypted;
         }
     } catch (error) {

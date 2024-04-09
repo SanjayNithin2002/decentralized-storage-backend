@@ -23,6 +23,7 @@ const constructMerkleTree = async (filepath) => {
             const root = tree.getRoot().toString('hex');
             resolve(root);
         } catch (err) {
+            console.log(err);
             reject(err);
         }
     })

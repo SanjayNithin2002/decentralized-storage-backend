@@ -5,16 +5,12 @@ const deleteFile = (filepath) => {
         var remoteFilePath = bucket.file(filepath);
         remoteFilePath.delete()
             .then(results => {
-                resolve({
-                    message: `File: ${filepath} deleted successfuly`,
-                    status: 200
-                })
+                console.log(`File: ${filepath} deleted Successfuly`);
+                resolve(`File: ${filepath} deleted Successfuly`)
             })
             .catch(err => {
-                reject({
-                    error: `Error deleting file: ${filepath}.\nError: ${err}`,
-                    status: err.status
-                })
+                console.log(`Error deleting file: ${filepath}.\nError: ${err}`);
+                reject(`Error deleting file: ${filepath}.\nError: ${err}`);
             })
     })
 };

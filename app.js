@@ -16,7 +16,7 @@ const fetchAPI = require('./kaleido/fetchAPI');
 const job = schedule.scheduleJob('*/5 * * * *', () => {
     clearDirectory('./uploads');
 });
-app.use(morgan('dev'));
+app.use(morgan('combined'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -33,7 +33,7 @@ app.use('/dataowners', dataOwnerRoutes);
 
 // Error Handlers
 app.use((req, res, next) => {
-    const error = new Error('Not Found');
+    const error = new Error(`Endpoint doesn't exist.`);
     error.status = 404;
     next(error);
 });

@@ -7,34 +7,27 @@ const encryptFile = (filepath, key) => {
     return new Promise((resolve, reject) => {
         fs.readFile(filepath, (err, filedata) => {
             if (err) {
-                const error = new Error(`Error reading file: ${filepath}`);
-                error.status = err.status || 500;
-                console.log(error);
-                reject(error);
+                console.log(err);
+                console.log(`Error reading file: ${filepath}`);
+                reject(`Error reading file: ${filepath}`);
             }
             else {
                 const encryptedFileData = encryptAes(filedata, key);
                 if (encryptedFileData !== undefined) {
                     fs.writeFile(filepath, encryptedFileData, (err, result) => {
                         if (err) {
-                            const error = new Error(`Error writing encrypted data to the file: ${filepath}.`);
-                            error.status = err.status || 500;
-                            console.log(error);
-                            reject(error);
+                            console.log(`Error writing encrypted data to the file: ${filepath}.`);
+                            reject(`Error writing encrypted data to the file: ${filepath}.`);
                         }
                         else {
-                            resolve({
-                                message: 'Encrypted Data Successfuly stored.',
-                                status: 200
-                            })
+                            console.log('Encrypted Data Successfuly stored.');
+                            resolve('Encrypted Data Successfuly stored.');
                         }
                     })
                 }
                 else {
-                    const error = new Error('Encryption failed');
-                    error.status = 500;
-                    console.log(error);
-                    reject(error);
+                    console.log('Failed to encrypt file.');
+                    reject('Failed to encrypt file.');
                 }
             }
         })
@@ -45,27 +38,23 @@ const decryptFile = (filepath, key) => {
     return new Promise((resolve, reject) => {
         fs.readFile(filepath, (err, encryptedFileData) => {
             if (err) {
-                const error = new Error(`Error reading file: ${filepath}.`);
-                error.status = err.status || 500;
-                reject(error);
+                console.log(`Error reading file: ${filepath}.`);
+                reject(`Error reading file: ${filepath}.`);
             } else {
                 const decryptedFileData = decryptAes(encryptedFileData.toString(), key); // Convert encrypted data to string before decrypting
                 if (decryptedFileData !== undefined) {
                     fs.writeFile(filepath, Buffer.from(decryptedFileData), (err, result) => { // Write decrypted data to a new file
                         if (err) {
-                            const error = new Error(`Error writing decrypted data to the file: ${filepath}.`);
-                            error.status = err.status || 500;
-                            reject(error);
+                            console.log(`Error writing decrypted data to the file: ${filepath}.`);
+                            reject(`Error writing decrypted data to the file: ${filepath}.`);
                         } else {
-                            resolve({
-                                message: 'Decrypted Data Successfuly stored.'
-                            })
+                            console.log('Decrypted Data Successfuly stored.');
+                            resolve('Decrypted Data Successfuly stored.');
                         }
                     });
                 } else {
-                    const error = new Error('Decryption Failed.');
-                    error.status = 500;
-                    reject(error);
+                    console.log('Failed to decrypt the file.');
+                    reject('Failed to decrypt the file.');
                 }
             }
         });

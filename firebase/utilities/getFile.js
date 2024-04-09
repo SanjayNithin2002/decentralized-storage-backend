@@ -12,15 +12,21 @@ const getFile = (filepath) => {
         file.getSignedUrl(options)
             .then(url => {
                 fetchPDF(url, filepath)
-                    .then(results => resolve(results))
-                    .catch(err => reject(err));
+                    .then(results => {
+                        console.log('Successfuly read the file from the cloud.');
+                        resolve(results);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        console.log('Error reading the file from cloud.');
+                        reject(err);
+                    });
             }
             )
             .catch(err => {
-                reject({
-                    error: err,
-                    status: err.status
-                })
+                console.log(err);
+                console.log('Error reading the file from cloud.');
+                reject('Error reading the file from cloud.');
             }
             );
     })

@@ -5,9 +5,8 @@ const fetchAPI = (apiContent) => {
 
         const endpoint = (func === '') ? `${process.env[instance + '_ENDPOINT']}` : `${process.env[instance + '_ENDPOINT']}/${func}`;
         if (endpoint === undefined) {
-            const error = new Error('Invalid Endpoint');
-            error.status = 404;
-            reject(error);
+            console.log('Invalid Endpoint');
+            reject('Invalid Endpoint');
         }
         const queryParams = new URLSearchParams(params);
         const url = JSON.stringify(params) === '{}' ? `${process.env.KALEIDO_URL}/${endpoint}` : `${process.env.KALEIDO_URL}/${endpoint}/?${queryParams}`;
@@ -24,7 +23,6 @@ const fetchAPI = (apiContent) => {
         if (JSON.stringify(body) !== '{}') {
             options.body = JSON.stringify(body);
         }
-        console.log(url, options);
 
         fetch(url, options)
             .then(response => {
@@ -32,16 +30,19 @@ const fetchAPI = (apiContent) => {
                     const error = new Error(response.statusText);
                     error.status = response.status;
                     console.log(error);
+                    console.log('Error exectuing the requested Kaleido API.');
                     reject(error);
                 }
                 return response.json();
             })
             .then(results => {
                 console.log(results);
+                console.log('Successfuly executed the requested Kaleido API.')
                 resolve(results)
             })
             .catch(err => {
                 console.log(err);
+                console.log('Error exectuing the requested Kaleido API.');
                 reject(err)
             });
     })

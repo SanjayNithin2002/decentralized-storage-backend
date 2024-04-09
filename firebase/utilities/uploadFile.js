@@ -10,15 +10,12 @@ const uploadFile = (filepath) => {
             }
         }, (err, file) => {
             if (err) {
-                reject({
-                    error: `Error uploading file to Firebase.\nFile: ${filepath}.\nError: ${err}`,
-                    status: err.status // Change error.status to err.status
-                });
+                console.log(err);
+                console.log(`Error uploading file to Firebase.\nFile: ${filepath}.\nError: ${err}`);
+                reject(`Error uploading file to Firebase.\nFile: ${filepath}.\nError: ${err}`);
             } else {
-                resolve({
-                    message: 'File Uploaded to firebase successfuly',
-                    status: 201
-                });
+                console.log('File Uploaded to firebase Successfuly');
+                resolve('File Uploaded to firebase Successfuly');
             }
         });
     });
