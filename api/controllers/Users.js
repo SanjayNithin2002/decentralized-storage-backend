@@ -98,7 +98,12 @@ const login = (req, res) => {
     fetchAPI(apiContent)
         .then(results => {
             const user = results.output;
-            if (req.body.email === user.email && verifyPassword(user.password, req.body.password)) {
+            if(user.status === 'Pending') {
+                res.status(401).json({
+                    error: 'Your account is not approved yet.'
+                });
+            }
+            else if (req.body.email === user.email && verifyPassword(user.password, req.body.password)) {
                 console.log('Login Successful.')
                 res.status(201).json({
                     message: 'Auth Successful.',
