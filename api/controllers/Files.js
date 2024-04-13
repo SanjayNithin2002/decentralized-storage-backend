@@ -74,7 +74,7 @@ const getById = (req, res) => {
                                     console.log(err);
                                     console.log('Failed to read the key file.');
                                     res.status(500).json({
-                                        message: 'Failed to read the key file.'
+                                        error: 'Failed to read the key file.'
                                     })
                                 })
                         })

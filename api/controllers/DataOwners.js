@@ -132,7 +132,7 @@ const login = (req, res) => {
             else {
                 console.log('Invalid credentials. Login failed.')
                 res.status(401).json({
-                    message: 'Auth Failed. Check credentials.'
+                    error: 'Auth Failed. Check credentials.'
                 });
             }
         })
