@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
-    const allowedOrigins = ['http://localhost:3000', 'postman://app'];
+    const allowedOrigins = ['http://localhost:3000', 'https://decentralized-storage-frontend.onrender.com', 'postman://app'];
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin) || origin === undefined) {
         res.header("Access-Control-Allow-Origin", origin || "*");
