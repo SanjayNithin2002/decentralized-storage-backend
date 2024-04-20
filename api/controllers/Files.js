@@ -13,28 +13,36 @@ const readFile = require('../middlewares/utilities/readFile');
 
 
 const getFilesByDepartment = (req, res) => {
-    const apiContent = {
-        method: 'GET',
-        instance: 'FILE',
-        func: 'getFilesByDepartment',
-        params: {
-            _department: req.params.dept
+    if(req.userData.department === req.params.dept){
+        const apiContent = {
+            method: 'GET',
+            instance: 'FILE',
+            func: 'getFilesByDepartment',
+            params: {
+                _department: req.params.dept
+            }
         }
-    }
-    fetchAPI(apiContent)
-        .then(files => {
-            console.log(files);
-            res.status(200).json({
-                files: files.output
-            });
-        })
-        .catch(err => {
-            console.log(err);
-            console.log('Failed to fetch files.');
-            res.status(500).json({
-                error: 'Failed to fetch files.'
+        fetchAPI(apiContent)
+            .then(files => {
+                console.log(files);
+                res.status(200).json({
+                    files: files.output
+                });
             })
+            .catch(err => {
+                console.log(err);
+                console.log('Failed to fetch files.');
+                res.status(500).json({
+                    error: 'Failed to fetch files.'
+                })
+            })
+    }
+    else {
+        console.log(`Unauthorized access.`);
+        res.status(401).json({
+            error: 'You are unauthorized to perform this request.'
         })
+    }
 };
 
 const getById = (req, res) => {
