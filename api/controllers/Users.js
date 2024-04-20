@@ -262,8 +262,8 @@ const approveById = (req, res) => {
                 }
                 else {
                     console.log('Unauthorized access.');
-                    res.status('409').json({
-                        error: 'You are unauthorized to delete a user from different department.'
+                    res.status('401').json({
+                        error: 'You are unauthorized to approve a user from different department.'
                     })
                 }
             })
@@ -329,7 +329,7 @@ const deleteById = (req, res) => {
                 }
                 else {
                     console.log(`Unauthorized access.`);
-                    res.status('409').json({
+                    res.status('401').json({
                         error: 'You are unauthorized to delete a user from different department.'
                     })
                 }
