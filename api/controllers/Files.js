@@ -13,7 +13,7 @@ const readFile = require('../middlewares/utilities/readFile');
 
 
 const getFilesByDepartment = (req, res) => {
-    if(req.userData.department === req.params.dept){
+    if (req.userData.department === req.params.dept) {
         const apiContent = {
             method: 'GET',
             instance: 'FILE',
@@ -316,45 +316,53 @@ const deleteById = (req, res) => {
             .then(results => {
                 if (results?.output) {
                     const file = results.output;
-                    deleteFile(file.filepath)
-                        .then(results => {
-                            const apiContent = {
-                                method: 'POST',
-                                instance: 'FILE',
-                                func: 'deleteFile',
-                                body: {
-                                    _id: req.params.id
-                                }
-                            }
-                            fetchAPI(apiContent)
-                                .then(results => {
-                                    if (results.sent) {
-                                        console.log('File deleted Successfully.');
-                                        res.status(200).json({
-                                            message: 'File deleted Successfully.'
-                                        })
+                    if (req.userData.department === results.output.department) {
+                        deleteFile(file.filepath)
+                            .then(results => {
+                                const apiContent = {
+                                    method: 'POST',
+                                    instance: 'FILE',
+                                    func: 'deleteFile',
+                                    body: {
+                                        _id: req.params.id
                                     }
-                                    else {
+                                }
+                                fetchAPI(apiContent)
+                                    .then(results => {
+                                        if (results.sent) {
+                                            console.log('File deleted Successfully.');
+                                            res.status(200).json({
+                                                message: 'File deleted Successfully.'
+                                            })
+                                        }
+                                        else {
+                                            console.log('Failed to delete the file record in the blockchain.');
+                                            res.status(500).json({
+                                                error: 'Failed to delete the file.'
+                                            })
+                                        }
+                                    })
+                                    .catch(err => {
+                                        console.log(err);
                                         console.log('Failed to delete the file record in the blockchain.');
                                         res.status(500).json({
                                             error: 'Failed to delete the file.'
                                         })
-                                    }
-                                })
-                                .catch(err => {
-                                    console.log(err);
-                                    console.log('Failed to delete the file record in the blockchain.');
-                                    res.status(500).json({
-                                        error: 'Failed to delete the file.'
                                     })
-                                })
-                        })
-                        .catch(err => {
-                            console.log('Failed to delete the file record in the cloud.');
-                            res.status(500).json({
-                                error: 'Failed to delete the file.'
                             })
+                            .catch(err => {
+                                console.log('Failed to delete the file record in the cloud.');
+                                res.status(500).json({
+                                    error: 'Failed to delete the file.'
+                                })
+                            })
+                    }
+                    else {
+                        console.log(`Unauthorized access.`);
+                        res.status(401).json({
+                            error: 'You are unauthorized to perform this request.'
                         })
+                    }
                 }
                 else {
                     console.log('File Not Found.')
