@@ -208,6 +208,12 @@ const postFile = (req, res) => {
     if (req.userData.type === 'Data Owner') {
         const uploadedFile = req.files.file[0];
         const keyFile = req.files.key[0];
+        const options = {
+            timeZone: 'Asia/Kolkata', 
+            hour12: true, 
+            hour: '2-digit',
+            minute: '2-digit'
+          };
         console.log(keyFile);
         readFile(keyFile.path)
             .then(key => {
@@ -229,7 +235,7 @@ const postFile = (req, res) => {
                                                 _id: randomUUID(),
                                                 _title: req.body.title,
                                                 _filepath: uploadedFile.path,
-                                                _uploadedAt: new Date().toLocaleString(),
+                                                _uploadedAt: new Date().toLocaleString('en-US', options),
                                                 _mimetype: uploadedFile.mimetype,
                                                 _originalName: uploadedFile.originalname,
                                                 _size: convertBytes(uploadedFile.size),
