@@ -36,7 +36,6 @@ const fetchAPI = (apiContent) => {
                 return response.json();
             })
             .then(results => {
-                console.log(results);
                 console.log('Successfuly executed the requested Kaleido API.')
                 resolve(results)
             })
