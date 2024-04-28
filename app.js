@@ -25,7 +25,7 @@ const job = schedule.scheduleJob('*/5 * * * *', () => {
     }
     fetchAPI(apiContent)
         .then(files => {
-            console.log(files);
+            console.log('Kaleido request successful');
         })
         .catch(err => {
             console.log(err);
