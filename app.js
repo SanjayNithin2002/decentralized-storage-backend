@@ -15,6 +15,28 @@ const fetchAPI = require('./kaleido/fetchAPI');
 // Middlewares
 const job = schedule.scheduleJob('*/5 * * * *', () => {
     clearDirectory('./uploads');
+    const apiContent = {
+        method: 'GET',
+        instance: 'FILE',
+        func: 'getFilesByDepartment',
+        params: {
+            _department: HR
+        }
+    }
+    fetchAPI(apiContent)
+        .then(files => {
+            console.log(files);
+            res.status(200).json({
+                files: files.output
+            });
+        })
+        .catch(err => {
+            console.log(err);
+            console.log('Failed to fetch files.');
+            res.status(500).json({
+                error: 'Failed to fetch files.'
+            })
+        })
 });
 app.use(morgan('combined'));
 app.use(bodyParser.urlencoded({ extended: true }));
