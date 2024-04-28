@@ -209,11 +209,14 @@ const postFile = (req, res) => {
         const uploadedFile = req.files.file[0];
         const keyFile = req.files.key[0];
         const options = {
-            timeZone: 'Asia/Kolkata', 
-            hour12: true, 
+            timeZone: 'Asia/Kolkata',
+            hour12: true,
             hour: '2-digit',
-            minute: '2-digit'
-          };
+            minute: '2-digit',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        };
         console.log(keyFile);
         readFile(keyFile.path)
             .then(key => {
