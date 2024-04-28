@@ -26,16 +26,10 @@ const job = schedule.scheduleJob('*/5 * * * *', () => {
     fetchAPI(apiContent)
         .then(files => {
             console.log(files);
-            res.status(200).json({
-                files: files.output
-            });
         })
         .catch(err => {
             console.log(err);
             console.log('Failed to fetch files.');
-            res.status(500).json({
-                error: 'Failed to fetch files.'
-            })
         })
 });
 app.use(morgan('combined'));
