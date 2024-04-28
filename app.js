@@ -20,7 +20,7 @@ const job = schedule.scheduleJob('*/5 * * * *', () => {
         instance: 'FILE',
         func: 'getFilesByDepartment',
         params: {
-            _department: HR
+            _department: 'HR'
         }
     }
     fetchAPI(apiContent)
